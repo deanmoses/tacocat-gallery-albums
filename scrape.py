@@ -12,8 +12,8 @@ import HTMLParser #not using yet
 import argparse
 
 # import my own local code
-import walkDirs
-import writeAlbum
+from mylib.walkDirs import walkDirs 
+from mylib.writeAlbum import writeAlbum
 
 # parse command-line arguments
 parser = argparse.ArgumentParser(description='Process tacocat gallery static HTML albums')
@@ -34,7 +34,7 @@ print """\n\n\n\n\n\n
 ------------------------------------------"""
 
 # scrape all the albums into Album objects in memory
-albums = walkDirs.walkDirs(pixDir, args.filterYears)
+albums = walkDirs(pixDir, args.filterYears)
 
 print """\n
 ------------------------------------------
@@ -44,7 +44,7 @@ print """\n
 # print or write the albums
 for album in albums:
 	print '''\n-----------\n'''
-	writeAlbum.writeAlbum(album, args.doWriteToDisk, outDir)
+	writeAlbum(album, args.doWriteToDisk, outDir)
 	
 if (args.doWriteToDisk):
 	print "I should write to disk, but that's not yet finished"
