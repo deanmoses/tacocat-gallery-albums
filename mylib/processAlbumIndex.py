@@ -2,16 +2,9 @@
 import sys
 from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
-#
-# find string between two other strings
-#
-def find_between( s, first, last ):
-	try:
-		start = s.index( first ) + len( first )
-		end = s.index( last, start )
-		return s[start:end]
-	except ValueError:
-		return ""
+# import my own local code
+from parseUtils import find_between
+
 #
 # process album index HTML file, return title and caption
 # return tuple of title, caption
@@ -42,7 +35,7 @@ def processAlbumIndex(indexHtmlFile):
 		# some albums genuinely don't have captions
 		#
 		noCaptions = [
-			'2001/12', 
+			'2001/12', # none of the 5 albums in december 2001 have captions
 			'2002/01', 
 			'2002/02', 
 			'2002/03/04', 
