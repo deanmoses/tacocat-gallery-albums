@@ -3,7 +3,6 @@ import sys
 from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
 # import my own local code
-import processPhotoCaption
 from parseUtils import find_between
 
 #
@@ -58,8 +57,7 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 		'2001/12/31/html/king_of_the_swingers.htm',
 		'2001/12/31/html/the_thinker.htm',
 		'2001/12/31/html/zonked.htm'
-		
-		
+
 	]
 	for noCaption in noCaptions:
 		if noCaption in htmlFile: 
@@ -112,7 +110,11 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 
 
 
-
+	#
+	# if we haven't figured out a caption at this point, we need
+	# to improve the parsing.  print out some diagnostics and exit
+	#
+	
 	if not caption:
 		sys.exit("""\n\n
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
