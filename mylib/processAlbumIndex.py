@@ -3,6 +3,16 @@ import sys
 from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
 #
+# find string between two other strings
+#
+def find_between( s, first, last ):
+	try:
+		start = s.index( first ) + len( first )
+		end = s.index( last, start )
+		return s[start:end]
+	except ValueError:
+		return ""
+#
 # process album index file, return caption
 # return tuple of title, caption
 #
@@ -18,19 +28,18 @@ def processAlbumIndex(indexHtmlFile):
 		#
 		# some albums genuinely don't have captions
 		#
-		noCaptions = ['2001/12', '2002/01', '2002/02', '2002/03/04', '2002/03/11', '2002/03/18']
+		noCaptions = [
+			'2001/12', 
+			'2002/01', 
+			'2002/02', 
+			'2002/03/04', 
+			'2002/03/11', 
+			'2002/03/18']
 		for noCaption in noCaptions:
 			if noCaption in indexHtmlFile: 
 				return albumTitle, ''
 		
-		def find_between( s, first, last ):
-		    try:
-		        start = s.index( first ) + len( first )
-		        end = s.index( last, start )
-		        return s[start:end]
-		    except ValueError:
-		        return ""
-		
+		# some very early albums
 		caption = find_between(html, '<!-- Include header.inc from image directory if present -->', '<!-- Iterate through images and produce an index table -->')
 		if caption:
 			caption = caption.replace('<br>&nbsp;<br>', '').strip()
@@ -61,4 +70,4 @@ def processAlbumIndex(indexHtmlFile):
 		if caption:
 			return albumTitle, caption
 		
-		sys.exit("cannot find album caption %s" % parsedHtml)
+		sys.exit("cannot find caption for album %s\n%s" % (indexHtmlFile, parsedHtml))

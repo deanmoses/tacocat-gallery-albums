@@ -37,7 +37,7 @@ def walkDirs(baseDir, desiredSubDirs):
 	
 	# skip badly formatted albums, do these by hand
 	albumsToIgnore = [
-		'2001/07/ultrasound/', 
+		'2001/07/ultrasound', 
 		'2001/09/bellytutu', 
 		'2001/10/doughboy', 
 		'2001/10/mermaid', 
@@ -45,6 +45,12 @@ def walkDirs(baseDir, desiredSubDirs):
 		'2004/04/08/', 
 		'2005/12/01/',
 		'2005/12/22/']
+		
+	# return true if album is one to ignore
+	def isAlbumToIgnore(albumDir):
+		for albumToIgnore in albumsToIgnore:
+			if albumToIgnore in albumDir: 
+				return True
 	
 	#
 	# walk the year directories
@@ -85,14 +91,12 @@ def walkDirs(baseDir, desiredSubDirs):
 			#
 			for dayDir in sorted(glob.glob(monthDir + '*/')):
 				day = dayDir.replace(monthDir, '').strip("/")
-				#print "%s/%s-%s" % (year, month, day)
 				albumName = "%s-%s" % (month, day)
 				
 				# skip all albumsToIgnore
-				for albumToIgnore in albumsToIgnore:
-					if albumToIgnore in dayDir: 
-						print "   skipping: %s: it's a badly formatted album" % (albumName)
-						continue
+				if isAlbumToIgnore(dayDir):
+					print "   skipping: %s: it's a badly formatted album" % (albumName)
+					continue
 
 				albums.append(processAlbum.processAlbum(year, albumName, dayDir))
 	
