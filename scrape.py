@@ -14,13 +14,13 @@
 # pix/2005/12/22/
 #
 
-import sys
+# import third party libraries
 import os
+import sys
 import HTMLParser
 
-import myClasses
+# import my own local code
 import walkDirs
-import processAlbum
 import writeAlbum
 
 #
@@ -36,6 +36,21 @@ if len(sys.argv) >= 2:
 pixDir = '/home/deanmoses/themosii.com/pix/'
 outfileName = '/home/deanmoses/scrape/output.xml'
 
+# so I can read diagnostic output better
+print """\n\n\n\n\n\n
+------------------------------------------
+----------- scraping albums --------------
+------------------------------------------"""
 
-# TO REDO:  walk tree
-		
+# scrape all the albums into Album objects in memory
+albums = walkDirs.walkDirs(pixDir, filterYear)
+
+print """\n
+------------------------------------------
+----------- printing albums --------------
+------------------------------------------"""
+
+# print or write the albums
+for album in albums:
+	print '''\n-----------\n'''
+	writeAlbum.writeAlbum(album)

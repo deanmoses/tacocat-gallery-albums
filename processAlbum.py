@@ -1,31 +1,40 @@
+# import external libraries
+import glob
+import os
+
+# import my own local code
 import processAlbumIndex
+import processPhoto
+from myClasses import Album
 
 #
 # process an individual album
 #
-
 def processAlbum(year, albumName, albumDir):
+	'''
+	process an individual album
 	
-	# skip badly formatted albums, do these by hand
-	badAlbumNames = ['07-ultrasound', 
-		'09-bellytutu', 
-		'10-doughboy', 
-		'10-mermaid', 
-		'12-ultrasound_bastille'] 
-	if albumName in badAlbumNames: return
-	badAlbumDirs = [
-		'/home/deanmoses/themosii.com/pix/2004/04/08/', 
-		'/home/deanmoses/themosii.com/pix/2005/12/01/',
-		'/home/deanmoses/themosii.com/pix/2005/12/22/']
-	if albumDir in badAlbumDirs: return
+	Parameters
+	----------
+	year : string
+	   like '2005'
+	albumName : string
+		like '12-31'
+	albumDir : string
+		full path to album, like /home/deanmoses/...
 	
-	print "album %s %s" % (year, albumName)
+	Returns
+	----------
+	An Album object
+	'''
+	
+	print "  %s/%s" % (year, albumName)
 	
 	album = Album()
 	album.year = year
 	album.name = albumName
 	
-	# figure out album's index HTML file that has album caption and thumbs
+	# figure out album's index file (has album title, caption, thumbs)
 	albumHtmlFile = albumDir + 'index.php' # takes precedence over .htm files
 	if not os.path.isfile(albumHtmlFile):
 		albumHtmlFile = albumDir + 'index.htm'
@@ -35,7 +44,7 @@ def processAlbum(year, albumName, albumDir):
 		sys.exit("cannot find album index HTML at %s" % albumHtmlFile)
 	#print "   index: %s" % (albumHtmlFile)
 	
-	albumTitle, albumCaption = processAlbumIndex(albumHtmlFile)
+	albumTitle, albumCaption = processAlbumIndex.processAlbumIndex(albumHtmlFile)
 	#print "   album title: %s" % (albumTitle)
 	#print "   album caption: %s" % (albumCaption)
 	album.title = albumTitle
@@ -61,18 +70,7 @@ def processAlbum(year, albumName, albumDir):
 	htmlFiles.extend(glob.glob(htmlDir + '*.htm'))
 	htmlFiles.extend(glob.glob(htmlDir + '*.html'))
 	for (htmlFile) in sorted(htmlFiles):
-		photo = Photo()
-		# photo name is the HTML file's name
-		photoName = htmlFile.replace(htmlDir, '').replace(".html", '').replace(".htm", '').strip("/")
-		#print "    name: %s" % (photoName)
-		photo.name = photoName
-		
-		# get photo's image file
-		imageFile = imageDir + photoName + '.JPG'
-		if not os.path.isfile(imageFile):
-			imageFile = imageDir + photoName + '.jpeg'
-		if not os.path.isfile(imageFile):
-			imageFile = imageDir + photoName + '.jpg'
-			
-		if not os.path.isfile(imageFile):
-			sys.exit("cannot find image file for %s at %s" % (photoTitle, imageFile));
+		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
+		album.photos.append(photo)
+
+	return album

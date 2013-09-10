@@ -1,3 +1,5 @@
+# import external libraries
+import sys
 from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
 #
