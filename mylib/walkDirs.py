@@ -95,7 +95,7 @@ def walkDirs(baseDir, desiredSubDirs):
 				
 				# skip all albumsToIgnore
 				if isAlbumToIgnore(dayDir):
-					print "   skipping: %s: it's a badly formatted album" % (albumName)
+					print "   skipping: %s %s: it's a badly formatted album" % (year, albumName)
 					continue
 
 				albums.append(processAlbum.processAlbum(year, albumName, dayDir))

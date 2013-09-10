@@ -3,6 +3,7 @@ import os
 
 # import my own local code
 from myClasses import Photo
+import processPhotoHtml
 
 #
 # Process an individual photo
@@ -25,12 +26,16 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 	A Photo object
 	'''
 	photo = Photo()
+	
+	#
 	# photo name is the HTML file's name
+	#
 	photoName = photoHtmlFile.replace(htmlDir, '').replace(".html", '').replace(".htm", '').strip("/")
-	print "    name: %s" % (photoName)
 	photo.name = photoName
 	
-	# get photo's image file
+	#
+	# photo's image file: path to jpg
+	#
 	imageFile = imageDir + photoName + '.JPG'
 	if not os.path.isfile(imageFile):
 		imageFile = imageDir + photoName + '.jpeg'
@@ -42,4 +47,9 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 	
 	photo.imageFile = imageFile
 	
+	#
+	# photo's title and caption from HTML file
+	#
+	photo.title, photo.caption = processPhotoHtml.processPhotoHtml(photoHtmlFile)
+			
 	return photo

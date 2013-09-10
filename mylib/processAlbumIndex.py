@@ -13,10 +13,23 @@ def find_between( s, first, last ):
 	except ValueError:
 		return ""
 #
-# process album index file, return caption
+# process album index HTML file, return title and caption
 # return tuple of title, caption
 #
-def processAlbumIndex(indexHtmlFile):	
+def processAlbumIndex(indexHtmlFile):
+	"""
+	Process album index HTML file, return title and caption
+	
+	Parameters
+	----------
+	indexHtmlFile : string
+		full path to the album's index HTML file (could be .htm or .php or something else)
+		
+	Returns
+	----------
+	tuple of title, caption
+	"""
+	
 	# open album index file and parse title & caption out of it
 	with open(indexHtmlFile) as f:
 		html = f.read()

@@ -72,5 +72,6 @@ def processAlbum(year, albumName, albumDir):
 	for (htmlFile) in sorted(htmlFiles):
 		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
 		album.photos.append(photo)
+		print "    %s" % (photo.name)
 
 	return album
