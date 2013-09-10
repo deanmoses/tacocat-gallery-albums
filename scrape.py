@@ -2,39 +2,30 @@
 # program to scrape static tacocat picture gallery, before the Menalto gallery software
 
 #
-# TODO BY HAND:
-# pix/1999/ (all subalbums)
-# pix/2001/07/ultrasound/
-# pix/2001/09/bellytutu/
-# pix/2001/10/doughboy/
-# pix/2001/10/mermaid/
-# pix/2003/12/ultrasound_bastille/
-# pix/2004/04/08/
-# pix/2005/12/01/
-# pix/2005/12/22/
+# look in walkDirs.py for list of albums I will have to process by hand
 #
 
 # import third party libraries
 import os
 import sys
-import HTMLParser
+import HTMLParser #not using yet
+import argparse
 
 # import my own local code
 import walkDirs
 import writeAlbum
 
-#
-# if a year was passed in as a command-line argument, filter by it
-#
-filterYear = None
-if len(sys.argv) >= 2:
-	filterYear = sys.argv[1]
+# parse command-line arguments
+parser = argparse.ArgumentParser(description='Process tacocat gallery static HTML albums')
+parser.add_argument('-years', dest='filterYears', nargs='*', help='years to process')
+parser.add_argument('-write', dest='doWriteToDisk', action='store_const', const=True, help='write to disk instead of printing to screen')
+args = parser.parse_args()
 
 #
 # constants
 #
-pixDir = '/home/deanmoses/themosii.com/pix/'
-outfileName = '/home/deanmoses/scrape/output.xml'
+pixDir = '/home/deanmoses/themosii.com/pix/' # root of tacocat static HTML albums
+outDir = '/home/deanmoses/scrape/output/'  # dir to write output to
 
 # so I can read diagnostic output better
 print """\n\n\n\n\n\n
@@ -43,7 +34,7 @@ print """\n\n\n\n\n\n
 ------------------------------------------"""
 
 # scrape all the albums into Album objects in memory
-albums = walkDirs.walkDirs(pixDir, filterYear)
+albums = walkDirs.walkDirs(pixDir, args.filterYears)
 
 print """\n
 ------------------------------------------
@@ -53,4 +44,7 @@ print """\n
 # print or write the albums
 for album in albums:
 	print '''\n-----------\n'''
-	writeAlbum.writeAlbum(album)
+	writeAlbum.writeAlbum(album, args.doWriteToDisk, outDir)
+	
+if (args.doWriteToDisk):
+	print "I should write to disk, but that's not yet finished"

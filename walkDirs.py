@@ -9,7 +9,7 @@ import processAlbum
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(baseDir, desiredSubDir):
+def walkDirs(baseDir, desiredSubDirs):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
@@ -17,8 +17,8 @@ def walkDirs(baseDir, desiredSubDir):
 	----------
 	baseDir : string
 	   full path to pix directory, starting with /home/deanmoses/...
-	desiredSubDir : string
-		only process this directory, like '1969'
+	desiredSubDirs : [] of strings
+		only process these dirs, like ['1969']
 	
 	Returns
 	----------
@@ -28,7 +28,10 @@ def walkDirs(baseDir, desiredSubDir):
 	# list of albums we'll be creating
 	albums = []
 	
-	
+	#
+	# these are all the albums I'll have to do by hand
+	#
+
 	# some year folders don't have data created by a program, do these by hand
 	yearsToIgnore = ['1968ish', '1999']
 	
@@ -38,7 +41,7 @@ def walkDirs(baseDir, desiredSubDir):
 		'2001/09/bellytutu', 
 		'2001/10/doughboy', 
 		'2001/10/mermaid', 
-		'2001/12/ultrasound_bastille'
+		'2003/12/ultrasound_bastille'
 		'2004/04/08/', 
 		'2005/12/01/',
 		'2005/12/22/']
@@ -50,8 +53,8 @@ def walkDirs(baseDir, desiredSubDir):
 		year = yearDir.replace(baseDir, '').strip("/")
 
 		# skip all dirs except the desired one
-		if desiredSubDir and year != desiredSubDir: 
-			print "%s: skipping, it's not %s" % (year, desiredSubDir)
+		if desiredSubDirs and year not in desiredSubDirs: 
+			print "%s: skipping, it's not in %s" % (year, desiredSubDirs)
 			continue
 		
 		# skip all yearsToIgnore

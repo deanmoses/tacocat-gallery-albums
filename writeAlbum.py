@@ -5,7 +5,7 @@ import xml.dom.minidom
 #
 # Write or print an individual album
 #
-def writeAlbum(album):
+def writeAlbum(album, doWriteToDisk, outDir):
 	'''
 	Write or print an individual album
 	
@@ -13,6 +13,10 @@ def writeAlbum(album):
 	----------
 	album : Album
 	   album to print or write
+	doWriteToDisk : boolean
+		True: write to disk instead of printing to screen
+	outDir :
+		directory to write to disk
 	'''
 	
 	#
@@ -40,15 +44,20 @@ def writeAlbum(album):
 		a.append(p)
 	
 	#
-	# write XML document out
+	# create pretty XML string
 	#
 	
-	#ET.dump(a)
 	xmlstr = ET.tostring(a, encoding='utf8')
 	xmlObj = xml.dom.minidom.parseString(xmlstr)
 	pretty_xml_as_string = xmlObj.toprettyxml()
 	
 	print pretty_xml_as_string
 	
-	#xmlFilename = '%s.%s' % (album.year, album.name)
-	#historyET.write(xmlFilename,"UTF-8")
+	#
+	# write XML to file
+	#
+	
+	#if doWriteToDisk:
+		#xmlFilename = '%s.%s' % (album.year, album.name)
+		#historyET.write(xmlFilename,"UTF-8")
+	
