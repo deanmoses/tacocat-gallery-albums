@@ -2,6 +2,8 @@
 # Utilities for parsing HTML files
 #
 
+from ParseError import ParseError
+
 #
 # find string between two other strings
 #
@@ -16,7 +18,7 @@ def find_between( s, first, last ):
 #
 # clean up caption 
 #
-def clean_caption(dirtyCaption):
+def clean_caption(dirtyCaption, htmlFile, html, parsedHtml):
 	'''
 	Clean up caption (like trim it) and also
 	throw exception if it contains stuff that 
@@ -42,7 +44,7 @@ def clean_caption(dirtyCaption):
 	cleanCaption = dirtyCaption.strip()
 	
 	if '<!--' in cleanCaption or '-->' in cleanCaption:
-		raise Exception('contains a HTML comment')
-	
+		raise ParseError('caption contains a HTML comment: %s' % cleanCaption, htmlFile, html, parsedHtml)
+
 	return cleanCaption
 	

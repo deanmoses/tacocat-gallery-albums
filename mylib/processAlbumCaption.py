@@ -3,6 +3,7 @@ import sys
 
 # import my own local code
 from parseUtils import find_between
+from ParseError import ParseError
 
 #
 # extract album caption from album HTML file
@@ -61,17 +62,13 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	#
 	#
 	caption = find_between(html, '<div bgcolor="#bde6d8" style="width:600px">', '</div>')
-	if caption:
-		caption = caption.strip()
-		return caption
+	if caption: return caption
 	
 	#
 	#
 	#
 	caption = find_between(html, '</TABLE>', 'Return to <a href="http://www.tacocat.com/felix/">main Felix page</a>.')
-	if caption:
-		caption = caption.strip()
-		return caption
+	if caption: return caption
 	
 	#
 	#
@@ -79,9 +76,7 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	caption = find_between(html, 
 		'</TABLE>', 
 		'<TABLE border="0" cellpadding="0" cellspacing="10" bgcolor="#FFFFFF" >')
-	if caption:
-		caption = caption.strip()
-		return caption			
+	if caption: return caption			
 	
 	
 	#
@@ -100,8 +95,6 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	# if we haven't figured out a caption at this point, we need
 	# to improve the parsing. 
 	#
-	
-	if not caption:
-		raise Exception('no caption found for album')
+	if not caption: raise ParseError('no album caption found', htmlFile, html, parsedHtml)
 		
 	return caption

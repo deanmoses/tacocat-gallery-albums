@@ -12,7 +12,7 @@ import sys
 import argparse
 
 # import my own local code
-from mylib.config import Config
+from mylib.Config import Config
 from mylib.walkDirs import walkDirs 
 from mylib.writeAlbum import writeAlbum
 

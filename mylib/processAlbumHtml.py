@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I ins
 
 # import my own local code
 import processAlbumCaption
+from ParseError import ParseError
 
 #
 # process album index HTML file, return title and caption
@@ -40,7 +41,8 @@ def processAlbumHtml(htmlFile):
 		#
 		try:
 			caption = processAlbumCaption.processAlbumCaption(htmlFile, html, parsedHtml)
-		except Exception as e:
+		except AssertionError as e:
+			url = htmlFile.replace('/home/deanmoses/themosii.com/', '')
 			sys.exit("""\n\n
 			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			photo caption error: %s 
@@ -49,6 +51,6 @@ def processAlbumHtml(htmlFile):
 			\n\n
 			%s
 			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			""" % (e.message, htmlFile, htmlFile.replace('/home/deanmoses/themosii.com/', ''), html))
+			""" % (e.message, htmlFile, url, html))
 		
 		return title, caption

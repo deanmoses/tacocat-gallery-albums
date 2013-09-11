@@ -2,7 +2,7 @@
 import os
 
 # import my own local code
-from myClasses import Photo
+from Photo import Photo
 import processPhotoHtml
 
 #

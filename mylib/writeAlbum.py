@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET  # XML writer
 import xml.dom.minidom
 
 # import my own local code
-import config
+from Config import Config
 
 #
 # Write or print an individual album
@@ -59,6 +59,6 @@ def writeAlbum(album, doWriteToDisk):
 	#
 	
 	#if doWriteToDisk:
-		#xmlFilename = '%s%s.%s' % (config.outDir, album.year, album.name)
+		#xmlFilename = '%s%s.%s' % (Config.outDir, album.year, album.name)
 		#historyET.write(xmlFilename,"UTF-8")
 	

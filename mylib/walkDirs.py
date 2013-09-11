@@ -5,7 +5,7 @@ import sys
 
 # import my own local code
 import processAlbum
-from config import Config
+from Config import Config
 
 #
 # Walk the year directory tree and process them in chronological order

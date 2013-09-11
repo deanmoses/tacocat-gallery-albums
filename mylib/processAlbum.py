@@ -8,8 +8,8 @@ import textwrap
 import processAlbumHtml
 import processPhoto
 import parseUtils
-from myClasses import Album
-from config import Config
+from Album import Album
+from Config import Config
 
 #
 # Process an individual album, creating an Album object

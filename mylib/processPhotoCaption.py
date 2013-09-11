@@ -3,7 +3,9 @@ import sys
 
 # import my own local code
 from parseUtils import find_between
-from config import Config
+from parseUtils import clean_caption
+from Config import Config
+from ParseError import ParseError
 
 #
 # process photo HTML file, return caption
@@ -59,11 +61,13 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# <center>
 	# <table bgcolor="#FFFFFF" border="0" cellpadding="0" cellspacing="2" width="200">
 	#
-	caption = find_between(html, '-->', """<P>
+	caption = find_between(html, 
+"""-->""", 
+"""<P>
 <CENTER>
 <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >""")
 
-	if caption: return caption
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
 
 	#
 	# LView Pro albums circa 2001 can also have HTML like this:
@@ -87,7 +91,7 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
 """)
 
-	if caption: return caption
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
 
 
 
@@ -97,14 +101,6 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	#
 	
 	if not caption:
-		sys.exit("""\n\n
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-cannot find caption for photo 
-%s
-http://tacocat.com/%s
-\n\n
-%s
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-""" % (htmlFile, htmlFile.replace(Config.webRoot, ''), html))
+		raise ParseError('no photo caption found', htmlFile, html, parsedHtml)
 		
 	return caption
