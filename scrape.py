@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# program to scrape static tacocat picture gallery, before the Menalto gallery software
+# program to scrape the static tacocat picture gallery albums, before the Menalto gallery software
 
 #
-# look in walkDirs.py for list of albums I will have to process by hand
+# walkDirs.py has list of albums I will have to process by hand
 #
 
 # import third party libraries
@@ -12,14 +12,20 @@ import sys
 import argparse
 
 # import my own local code
+from mylib.config import Config
 from mylib.walkDirs import walkDirs 
 from mylib.writeAlbum import writeAlbum
 
 # parse command-line arguments
 parser = argparse.ArgumentParser(description='Process tacocat gallery static HTML albums')
+parser.add_argument('-verbose', dest='verbose', action='store_const', const=True, help='output more detailed information')
 parser.add_argument('-years', dest='filterYears', nargs='*', help='years to process')
 parser.add_argument('-write', dest='doWriteToDisk', action='store_const', const=True, help='write to disk instead of printing to screen')
 args = parser.parse_args()
+
+if args.verbose:
+	Config.verbose = True
+
 
 # so I can read diagnostic output better
 print """\n\n\n\n\n\n

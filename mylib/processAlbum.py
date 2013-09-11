@@ -1,11 +1,15 @@
 # import external libraries
 import glob
 import os
+import sys
+import textwrap
 
 # import my own local code
 import processAlbumHtml
 import processPhoto
+import parseUtils
 from myClasses import Album
+from config import Config
 
 #
 # Process an individual album, creating an Album object
@@ -52,7 +56,9 @@ def processAlbum(year, albumName, albumDir):
 	#
 	
 	album.title, album.caption = processAlbumHtml.processAlbumHtml(albumHtmlFile)
-	
+		
+	if (Config.verbose): print "caption: %s" % album.caption
+		
 	#
 	# figure out path to album's HTML and image directories
 	#
@@ -80,6 +86,12 @@ def processAlbum(year, albumName, albumDir):
 	for (htmlFile) in sorted(htmlFiles):
 		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
 		album.photos.append(photo)
+
 		print "    %s" % (photo.name)
+		if (Config.verbose and photo.caption): 
+			w = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False,initial_indent='      ',subsequent_indent='      ')
+			print w.fill(photo.caption)
+			#print "      %s" % (photo.caption)
+			
 
 	return album

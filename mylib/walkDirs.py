@@ -5,7 +5,7 @@ import sys
 
 # import my own local code
 import processAlbum
-import config
+from config import Config
 
 #
 # Walk the year directory tree and process them in chronological order
@@ -55,8 +55,8 @@ def walkDirs(desiredSubDirs):
 	#
 	# walk the year directories
 	#
-	for yearDir in sorted(glob.glob(config.pixDir + '[0-9]*/')):
-		year = yearDir.replace(config.pixDir, '').strip("/")
+	for yearDir in sorted(glob.glob(Config.pixDir + '[0-9]*/')):
+		year = yearDir.replace(Config.pixDir, '').strip("/")
 
 		# skip all dirs except the desired one
 		if desiredSubDirs and year not in desiredSubDirs: 

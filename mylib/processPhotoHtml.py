@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I ins
 
 # import my own local code
 import processPhotoCaption
+import parseUtils
+from config import Config
 
 #
 # process photo HTML file, return title and caption
@@ -37,6 +39,18 @@ def processPhotoHtml(htmlFile):
 		#
 		# get caption
 		#
-		caption = processPhotoCaption.processPhotoCaption(htmlFile, html, parsedHtml)
-		
+		try:
+			caption = processPhotoCaption.processPhotoCaption(htmlFile, html, parsedHtml)
+			caption = parseUtils.clean_caption(caption)
+		except Exception as e:
+			sys.exit("""\n\n
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+photo caption error: %s
+%s
+http://tacocat.com/%s
+\n\n
+%s
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+""" % (e, htmlFile, htmlFile.replace(Config.webRoot, ''), html))
+
 		return photoTitle, caption

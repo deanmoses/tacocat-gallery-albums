@@ -3,7 +3,7 @@ import sys
 
 # import my own local code
 from parseUtils import find_between
-import config
+from config import Config
 
 #
 # process photo HTML file, return caption
@@ -37,7 +37,7 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# which could be things like '2001/12/13/'
 	# that exclude all photos in the album.
 	#
-	with open(config.noCaptionsFile) as f:
+	with open(Config.noCaptionsFile) as f:
 		noCaptions = f.read().split()
 		for noCaption in noCaptions:
 			if not noCaption: continue # ignore blank lines in file
@@ -105,6 +105,6 @@ http://tacocat.com/%s
 \n\n
 %s
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-""" % (htmlFile, htmlFile.replace(config.webRoot, ''), html))
+""" % (htmlFile, htmlFile.replace(Config.webRoot, ''), html))
 		
 	return caption

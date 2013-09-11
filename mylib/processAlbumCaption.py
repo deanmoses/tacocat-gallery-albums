@@ -98,18 +98,10 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	
 	#
 	# if we haven't figured out a caption at this point, we need
-	# to improve the parsing.  print out some diagnostics and exit
+	# to improve the parsing. 
 	#
 	
 	if not caption:
-		sys.exit("""\n\n
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-cannot find caption for album 
-%s
-http://tacocat.com/%s
-\n\n
-%s
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-""" % (htmlFile, htmlFile.replace('/home/deanmoses/themosii.com/', ''), html))
+		raise Exception('no caption found for album')
 		
 	return caption

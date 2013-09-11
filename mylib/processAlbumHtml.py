@@ -38,6 +38,17 @@ def processAlbumHtml(htmlFile):
 		#
 		# get caption
 		#
-		caption = processAlbumCaption.processAlbumCaption(htmlFile, html, parsedHtml)
+		try:
+			caption = processAlbumCaption.processAlbumCaption(htmlFile, html, parsedHtml)
+		except Exception as e:
+			sys.exit("""\n\n
+			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			photo caption error: %s 
+			%s
+			http://tacocat.com/%s
+			\n\n
+			%s
+			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			""" % (e.message, htmlFile, htmlFile.replace('/home/deanmoses/themosii.com/', ''), html))
 		
 		return title, caption
