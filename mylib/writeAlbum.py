@@ -1,4 +1,5 @@
 # import third party libraries
+import os
 import xml.etree.ElementTree as ET  # XML writer
 import xml.dom.minidom
 
@@ -58,7 +59,22 @@ def writeAlbum(album, doWriteToDisk):
 	# write XML to file
 	#
 	
-	#if doWriteToDisk:
-		#xmlFilename = '%s%s.%s' % (Config.outDir, album.year, album.name)
-		#historyET.write(xmlFilename,"UTF-8")
+	if doWriteToDisk:
+		# directory to write file to
+		outDir = '%s%s/' % (Config.outDir, album.year)
+		
+		# full path to file
+		xmlFilename = '%s%s.xml' % (outDir, album.name)
+		
+		if os.path.isfile(xmlFilename):
+			print "Not writing - file already exists: %s" % xmlFilename
+		else:
+			# make any of the parent dirs that haven't yet been created
+			if not os.path.isdir(outDir): os.makedirs(outDir, 0755 )
+			
+			# write the file
+			with open(xmlFilename, "w+") as f:
+			    f.write(pretty_xml_as_string)
+			
+			print "Wrote XML to: %s" % xmlFilename
 	

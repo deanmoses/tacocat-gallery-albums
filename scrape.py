@@ -45,6 +45,3 @@ print """\n
 for album in albums:
 	print '''\n-----------\n'''
 	writeAlbum(album, args.doWriteToDisk)
-	
-if (args.doWriteToDisk):
-	print "I should write to disk, but that's not yet finished"

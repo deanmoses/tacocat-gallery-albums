@@ -61,3 +61,7 @@
 2002/04/15/html/teagarden2.htm
 2002/04/29/html/beach4.htm
 2002/04/29/html/beach5.htm
+2002/05/13/html/boat2.htm
+2002/05/13/html/boat3.htm
+2002/05/13/html/boat4.htm
+2002/05/13/html/boat5.htm
