@@ -3,6 +3,7 @@ import sys
 
 # import my own local code
 from parseUtils import find_between
+from parseUtils import clean_caption
 from ParseError import ParseError
 
 #
@@ -56,19 +57,19 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	caption = find_between(html, '<!-- Include header.inc from image directory if present -->', '<!-- Iterate through images and produce an index table -->')
 	if caption:
 		caption = caption.replace('<br>&nbsp;<br>', '').strip()
-		return caption
+		return clean_caption(caption, htmlFile, html, parsedHtml)
 	
 	#
 	#
 	#
 	caption = find_between(html, '<div bgcolor="#bde6d8" style="width:600px">', '</div>')
-	if caption: return caption
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
 	
 	#
 	#
 	#
 	caption = find_between(html, '</TABLE>', 'Return to <a href="http://www.tacocat.com/felix/">main Felix page</a>.')
-	if caption: return caption
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
 	
 	#
 	#
@@ -76,7 +77,7 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	caption = find_between(html, 
 		'</TABLE>', 
 		'<TABLE border="0" cellpadding="0" cellspacing="10" bgcolor="#FFFFFF" >')
-	if caption: return caption			
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)			
 	
 	
 	#
@@ -87,7 +88,7 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	
 	caption = parsedHtml.body.find('p', attrs={'class':'para'})
 	
-	if caption: return caption
+	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
 	
 
 	
