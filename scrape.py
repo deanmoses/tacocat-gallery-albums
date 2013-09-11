@@ -8,7 +8,7 @@
 # import third party libraries
 import os
 import sys
-import HTMLParser #not using yet
+#import HTMLParser #not using yet
 import argparse
 
 # import my own local code
@@ -21,12 +21,6 @@ parser.add_argument('-years', dest='filterYears', nargs='*', help='years to proc
 parser.add_argument('-write', dest='doWriteToDisk', action='store_const', const=True, help='write to disk instead of printing to screen')
 args = parser.parse_args()
 
-#
-# constants
-#
-pixDir = '/home/deanmoses/themosii.com/pix/' # root of tacocat static HTML albums
-outDir = '/home/deanmoses/scrape/output/'  # dir to write output to
-
 # so I can read diagnostic output better
 print """\n\n\n\n\n\n
 ------------------------------------------
@@ -34,7 +28,7 @@ print """\n\n\n\n\n\n
 ------------------------------------------"""
 
 # scrape all the albums into Album objects in memory
-albums = walkDirs(pixDir, args.filterYears)
+albums = walkDirs(args.filterYears)
 
 print """\n
 ------------------------------------------
@@ -44,7 +38,7 @@ print """\n
 # print or write the albums
 for album in albums:
 	print '''\n-----------\n'''
-	writeAlbum(album, args.doWriteToDisk, outDir)
+	writeAlbum(album, args.doWriteToDisk)
 	
 if (args.doWriteToDisk):
 	print "I should write to disk, but that's not yet finished"

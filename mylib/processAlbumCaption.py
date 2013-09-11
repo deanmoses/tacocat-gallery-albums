@@ -1,6 +1,5 @@
 # import external libraries
 import sys
-from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
 # import my own local code
 from parseUtils import find_between
@@ -39,7 +38,8 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 		'2002/02', 
 		'2002/03/04', 
 		'2002/03/11', 
-		'2002/03/18']
+		'2002/03/18'
+		]
 		
 	for noCaption in noCaptions:
 		if noCaption in htmlFile: 

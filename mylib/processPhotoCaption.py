@@ -1,9 +1,9 @@
 # import external libraries
 import sys
-from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
 
 # import my own local code
 from parseUtils import find_between
+import config
 
 #
 # process photo HTML file, return caption
@@ -31,37 +31,18 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	caption = ''
 	
 	#
-	# some photos genuinely don't have captions
+	# Some photos genuinely don't have captions.
+	# Read list of paths to ignore from text file.
+	# Ignore any photos that match the paths,
+	# which could be things like '2001/12/13/'
+	# that exclude all photos in the album.
 	#
-	noCaptions = [
-		'2001/12/13/',
-		'2001/12/14/',
-		'2001/12/16/',
-		'2001/12/23/html/eyes_wide_open.htm',
-		'2001/12/23/html/felix_and_the_armpit.htm',
-		'2001/12/23/html/lulix1.htm',
-		'2001/12/23/html/lulix2.htm',
-		'2001/12/23/html/lulix3.htm',
-		'2001/12/23/html/molix_sleeping.htm',
-		'2001/12/23/html/molulix.htm',
-		'2001/12/31/html/felix1.htm',
-		'2001/12/31/html/felix2.htm',
-		'2001/12/31/html/felix3.htm',
-		'2001/12/31/html/felix4.htm',
-		'2001/12/31/html/felix_yet_again.htm',
-		'2001/12/31/html/francoisix1.htm',
-		'2001/12/31/html/francoisix2.htm',
-		'2001/12/31/html/francoisix3.htm',
-		'2001/12/31/html/francoisix4.htm',
-		'2001/12/31/html/grandma_francois.htm',
-		'2001/12/31/html/king_of_the_swingers.htm',
-		'2001/12/31/html/the_thinker.htm',
-		'2001/12/31/html/zonked.htm'
-
-	]
-	for noCaption in noCaptions:
-		if noCaption in htmlFile: 
-			return caption
+	with open(config.noCaptionsFile) as f:
+		noCaptions = f.read().split()
+		for noCaption in noCaptions:
+			if not noCaption: continue # ignore blank lines in file
+			if noCaption in htmlFile: 
+				return caption
 	
 	#####################################################
 	# now try a whole bunch of different parsing routines
@@ -124,6 +105,6 @@ http://tacocat.com/%s
 \n\n
 %s
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-""" % (htmlFile, htmlFile.replace('/home/deanmoses/themosii.com/', ''), html))
+""" % (htmlFile, htmlFile.replace(config.webRoot, ''), html))
 		
 	return caption

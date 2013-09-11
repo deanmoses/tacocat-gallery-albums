@@ -1,22 +1,22 @@
 # import third party libraries
 import glob
 import os
+import sys
 
 # import my own local code
 import processAlbum
+import config
 
 #
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(baseDir, desiredSubDirs):
+def walkDirs(desiredSubDirs):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
 	Parameters
 	----------
-	baseDir : string
-	   full path to pix directory, starting with /home/deanmoses/...
 	desiredSubDirs : [] of strings
 		only process these dirs, like ['1969']
 	
@@ -55,8 +55,8 @@ def walkDirs(baseDir, desiredSubDirs):
 	#
 	# walk the year directories
 	#
-	for yearDir in sorted(glob.glob(baseDir + '[0-9]*/')):
-		year = yearDir.replace(baseDir, '').strip("/")
+	for yearDir in sorted(glob.glob(config.pixDir + '[0-9]*/')):
+		year = yearDir.replace(config.pixDir, '').strip("/")
 
 		# skip all dirs except the desired one
 		if desiredSubDirs and year not in desiredSubDirs: 
