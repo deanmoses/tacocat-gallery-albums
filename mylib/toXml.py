@@ -1,5 +1,8 @@
+#
+# Return Album as XML
+#
+
 # import third party libraries
-import os
 import xml.etree.ElementTree as ET  # XML writer
 import xml.dom.minidom
 
@@ -7,18 +10,16 @@ import xml.dom.minidom
 from Config import Config
 
 #
-# Write or print an individual album
+# Return specified album as an XML string
 #
-def writeAlbum(album, doWriteToDisk):
+def toXml(album):
 	'''
-	Write or print an individual album
+	Return specified album as an XML string
 	
 	Parameters
 	----------
 	album : Album
-	   album to print or write
-	doWriteToDisk : boolean
-		True: write to disk instead of printing to screen
+	   album to return as XML string
 	'''
 	
 	#
@@ -53,28 +54,5 @@ def writeAlbum(album, doWriteToDisk):
 	xmlObj = xml.dom.minidom.parseString(xmlstr)
 	pretty_xml_as_string = xmlObj.toprettyxml()
 	
-	print pretty_xml_as_string
-	
-	#
-	# write XML to file
-	#
-	
-	if doWriteToDisk:
-		# directory to write file to
-		outDir = '%s%s/' % (Config.outDir, album.year)
-		
-		# full path to file
-		xmlFilename = '%s%s.xml' % (outDir, album.name)
-		
-		if os.path.isfile(xmlFilename):
-			print "Not writing - file already exists: %s" % xmlFilename
-		else:
-			# make any of the parent dirs that haven't yet been created
-			if not os.path.isdir(outDir): os.makedirs(outDir, 0755 )
-			
-			# write the file
-			with open(xmlFilename, "w+") as f:
-			    f.write(pretty_xml_as_string)
-			
-			print "Wrote XML to: %s" % xmlFilename
+	return pretty_xml_as_string
 	
