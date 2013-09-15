@@ -4,7 +4,9 @@ import string
 import re
 
 # import my own local code
+from Config import Config
 from Photo import Photo
+from Image import Image
 import processPhotoHtml
 
 #
@@ -46,6 +48,8 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 	
 	photo = Photo()
 	photo.pathComponent = os.path.basename(imageFile)
+	photo.fullSizeImage = Image()
+	photo.fullSizeImage.url = Config.httpRoot + imageFile.replace(Config.webRoot, '')
 	
 	#
 	# photo's title and caption from HTML file

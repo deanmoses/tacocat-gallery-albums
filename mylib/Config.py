@@ -7,7 +7,10 @@ class Config:
 	webRoot = '/home/deanmoses/themosii.com/'
 
 	# root of tacocat static HTML albums
-	pixDir = webRoot + 'pix/' 
+	pixDir = webRoot + 'pix/'
+	
+	# root of tacocat.com
+	httpRoot = 'http://tacocat.com/' 
 
 	# root of this script
 	scriptDir = '/home/deanmoses/scrape/'

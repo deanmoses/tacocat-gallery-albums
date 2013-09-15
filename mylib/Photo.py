@@ -6,3 +6,4 @@ class Photo:
 		self.pathComponent = None # name of photo like 'juicy1.jpg'
 		self.title = None # title of photo, usually comes from photo's HTML file
 		self.description = None # caption of photo, probably contains HTML
+		self.fullSizeImage = None # Image object
