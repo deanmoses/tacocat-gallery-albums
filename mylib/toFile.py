@@ -13,7 +13,7 @@ from Config import Config
 # The string may be in XML or JSON or another format, 
 # it's not the job of this method to know.
 #
-def toFile(album, albumString, extension):
+def toFile(album, albumString, extension, overwriteFiles):
 	'''
 	Write specified string representing an Album to a file on disk.
 	The string may be in XML or JSON or another format, 
@@ -31,18 +31,16 @@ def toFile(album, albumString, extension):
 		file suffix 
 		such as 'xml' or 'json'.  Do not include the preceding '.'
 	'''
-	
-	# directory to write file to
-	outDir = '%s%s/' % (Config.outDir, album.year)
-	
+		
 	# full path to file
-	filename = '%s%s.%s' % (outDir, album.name, extension)
+	filename = '%s%s/album.%s' % (Config.outDir, album.pathComponent, extension)
 	
-	if os.path.isfile(filename):
+	if not overwriteFiles and os.path.isfile(filename):
 		print "Not writing - file already exists: %s" % filename
 	else:
 		# make any of the parent dirs that haven't yet been created
-		if not os.path.isdir(outDir): os.makedirs(outDir, 0755 )
+		parentDir = os.path.dirname(os.path.realpath(filename))
+		if not os.path.isdir(parentDir): os.makedirs(parentDir, 0755 )
 		
 		# write the file
 		with open(filename, "w+") as f:

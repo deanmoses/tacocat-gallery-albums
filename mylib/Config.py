@@ -13,7 +13,7 @@ class Config:
 	scriptDir = '/home/deanmoses/scrape/'
 
 	# dir to write output to
-	outDir = scriptDir + 'output/'  
+	outDir = webRoot + 'oldpix/'  
 
 	# file with paths of photos that don't have captions
 	noCaptionsFile = scriptDir + 'photosWithoutCaptions.txt' 

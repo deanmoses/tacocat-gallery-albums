@@ -3,7 +3,6 @@
 #
 class Photo:
 	def __init__(self):
-		self.name = None # name of photo like 'juicy1'
+		self.pathComponent = None # name of photo like 'juicy1.jpg'
 		self.title = None # title of photo, usually comes from photo's HTML file
-		self.caption = None # caption of photo, probably contains HTML
-		self.imageFile = None # full path to full sized photo jpg starting with /home/deanmoses/
+		self.description = None # caption of photo, probably contains HTML

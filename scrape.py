@@ -23,11 +23,11 @@ parser = argparse.ArgumentParser(description='Process tacocat gallery static HTM
 parser.add_argument('-verbose', dest='verbose', action='store_const', const=True, help='output more detailed information')
 parser.add_argument('-years', dest='filterYears', nargs='*', help='years to process')
 parser.add_argument('-write', dest='doWriteToDisk', action='store_const', const=True, help='write to disk instead of printing to screen')
+parser.add_argument('-f', dest='overwriteFiles', action='store_const', const=True, help='overwrite existing files')
 args = parser.parse_args()
 
 if args.verbose:
 	Config.verbose = True
-
 
 # so I can read diagnostic output better
 print """\n\n\n\n\n\n
@@ -51,7 +51,7 @@ for album in albums:
 	if (args.doWriteToDisk):
 		# write string to disk
 		fileExtension = 'json'
-		toFile(album, albumString, fileExtension)
+		toFile(album, albumString, fileExtension, args.overwriteFiles)
 	else:
 		print albumString
 		

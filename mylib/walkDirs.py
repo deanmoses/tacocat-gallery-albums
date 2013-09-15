@@ -52,6 +52,13 @@ def walkDirs(desiredSubDirs):
 			if albumToIgnore in albumDir: 
 				return True
 	
+	# return true if directory is one of the normal working dirs
+	normalDirs = ['slides', 'images', 'html', 'thumbnails', 'res', 'video']
+	def isNormalDir(dir):
+		for normalDir in normalDirs:
+			if normalDir in dir:
+				return True
+	
 	#
 	# walk the year directories
 	#
@@ -67,38 +74,45 @@ def walkDirs(desiredSubDirs):
 		if year in yearsToIgnore: 
 			print "%s: skipping, it's a badly formatted year" % (year)
 			continue
-		
-		#print '%s' % (year)
-		
+				
 		#
-		# walk the month directories
+		# walk the month folders under the year folder
 		#
 		for monthDir in sorted(glob.glob(yearDir + '*/')):
-			month = monthDir.replace(yearDir, '').strip("/")
-			#print "%s/%s" % (year, month)
-			
-			#
-			# some years are weird and have a few albums directly under them
-			# detect those here and process them
-			#
-			if os.path.isdir(monthDir + 'slides') or os.path.isdir(monthDir + 'html'):
-				albumName = month
-				albums.append(processAlbum.processAlbum(year, albumName, monthDir))
+			# skip all albums to ignore
+			if isAlbumToIgnore(monthDir):
+				print "   skipping: %s: it's a badly formatted album" % (monthDir)
 				continue
 			
 			#
-			# walk the days under the months (these are individual albums)
+			# some years are weird and have a few albums directly under them
+			# mixed in with the months.  do we need to process or remove those?
+			#
+			if os.path.isdir(monthDir + 'slides') or os.path.isdir(monthDir + 'html'):
+				raise Exception("weird folder structure:  expecting month, was not one")
+				albums.append(processAlbum.processAlbum(monthDir))
+				continue
+			
+			#
+			# walk the day folders under the month folder (these are individual albums)
 			#
 			for dayDir in sorted(glob.glob(monthDir + '*/')):
-				day = dayDir.replace(monthDir, '').strip("/")
-				albumName = "%s-%s" % (month, day)
-				
-				# skip all albumsToIgnore
+				# skip all albums to ignore
 				if isAlbumToIgnore(dayDir):
-					print "   skipping: %s %s: it's a badly formatted album" % (year, albumName)
+					print "   skipping: %s: it's a badly formatted album" % (dayDir)
 					continue
-
-				albums.append(processAlbum.processAlbum(year, albumName, dayDir))
-	
+								
+				albums.append(processAlbum.processAlbum(dayDir))
+				
+				#
+				# some albums have sub albums
+				#
+				for (subalbumDir) in sorted(glob.glob(dayDir + '*/')):
+					if (isNormalDir(subalbumDir)): continue
+					if isAlbumToIgnore(subalbumDir):
+						print "   skipping: %s: it's a badly formatted album" % (subalbumDir)
+						continue
+					albums.append(processAlbum.processAlbum(subalbumDir))
+				
 	# return the album objects -- still in memory, haven't been written to disk
 	return albums;
