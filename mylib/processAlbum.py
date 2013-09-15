@@ -22,10 +22,6 @@ def processAlbum(albumDir):
 	
 	Parameters
 	----------
-	year : string
-	   like '2005'
-	albumName : string
-		like '12-31'
 	albumDir : string
 		full path to album, like /home/deanmoses/...
 	

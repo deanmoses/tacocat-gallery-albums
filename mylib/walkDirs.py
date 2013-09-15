@@ -5,6 +5,7 @@ import sys
 
 # import my own local code
 import processAlbum
+import processYearAlbum
 from Config import Config
 
 #
@@ -64,6 +65,7 @@ def walkDirs(desiredSubDirs):
 	#
 	for yearDir in sorted(glob.glob(Config.pixDir + '[0-9]*/')):
 		year = yearDir.replace(Config.pixDir, '').strip("/")
+		albumsForYear = []
 
 		# skip all dirs except the desired one
 		if desiredSubDirs and year not in desiredSubDirs: 
@@ -90,7 +92,7 @@ def walkDirs(desiredSubDirs):
 			#
 			if os.path.isdir(monthDir + 'slides') or os.path.isdir(monthDir + 'html'):
 				raise Exception("weird folder structure:  expecting month, was not one")
-				albums.append(processAlbum.processAlbum(monthDir))
+				albumsForYear.append(processAlbum.processAlbum(monthDir))
 				continue
 			
 			#
@@ -102,7 +104,7 @@ def walkDirs(desiredSubDirs):
 					print "   skipping: %s: it's a badly formatted album" % (dayDir)
 					continue
 								
-				albums.append(processAlbum.processAlbum(dayDir))
+				albumsForYear.append(processAlbum.processAlbum(dayDir))
 				
 				#
 				# some albums have sub albums
@@ -112,7 +114,13 @@ def walkDirs(desiredSubDirs):
 					if isAlbumToIgnore(subalbumDir):
 						print "   skipping: %s: it's a badly formatted album" % (subalbumDir)
 						continue
-					albums.append(processAlbum.processAlbum(subalbumDir))
+					albumsForYear.append(processAlbum.processAlbum(subalbumDir))
+		
+		# create year album and add it to master album list
+		albums.append(processYearAlbum.processYearAlbum(year, albumsForYear))
+		
+		# add all the year's albums into the master album list
+		albums.extend(albumsForYear)
 				
 	# return the album objects -- still in memory, haven't been written to disk
 	return albums;

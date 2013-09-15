@@ -48,12 +48,14 @@ for album in albums:
 	# create XML string
 	#albumString = toXml(album)
 	albumString = toJson(album)
+	# full path to file
+	albumPath = '%s%s/album.json' % (Config.outDir, album.pathComponent)
 	if (args.doWriteToDisk):
 		# write string to disk
-		fileExtension = 'json'
-		toFile(album, albumString, fileExtension, args.overwriteFiles)
+		toFile(albumPath, albumString, args.overwriteFiles)
 	else:
 		print albumString
+		print 'Would have written to: %s' % albumPath
 		
 	print '''\n-----------\n'''
 	
