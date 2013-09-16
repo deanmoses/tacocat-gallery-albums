@@ -66,7 +66,7 @@ def processAlbum(albumDir, creationTimestamp):
 	#
 	
 	album.summary, album.description = processAlbumHtml.processAlbumHtml(albumHtmlFile)
-		
+	
 	if (Config.verbose): print "caption: %s" % album.description
 		
 	#

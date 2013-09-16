@@ -50,12 +50,8 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# now try a whole bunch of different parsing routines
 	#####################################################
 	
-	# Dunno if any of the files actually have Windows /r/n newlines,
-	# but let's remove them right now
-	html = html.strip('\r\v\f')
-	
 	#
-	# LView Pro albums circa 2001 have HTML like this:
+	# Albums circa 2001:
 	#
 	# <!--
 	# File: C:\Documents and Settings\moses.MOSESREMOTE\My Documents\My Pictures\tacocat\felix\2001.12.17-23\raw_images\maman_dans_la_cuisine.txt
@@ -74,7 +70,7 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
 	#
-	# LView Pro albums circa 2001 can also have HTML like this:
+	# Albums circa 2001:
 	#
 	# </TABLE>
 	# </CENTER>

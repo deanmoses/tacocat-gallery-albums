@@ -52,9 +52,12 @@ def walkDirs(albumFilter):
 		'2003/04/06/the_mint',
 		'2003/12/ultrasound_bastille',
 		'2003/07/27/no_links_please',
-		'2004/04/08/', 
+		'2004/04/08/',
+		'2004/07/24/father-son/',
+		'2004/08/15/audio',
+		'2004/09/26/audio',
 		'2005/12/01/',
-		'2005/12/22/',
+		'2005/12/22/'
 		]
 		
 	# return true if album is one to ignore

@@ -1,8 +1,14 @@
+#
+# process album's index HTML file
+#
+
 # import external libraries
 import sys
 from bs4 import BeautifulSoup, Comment # BeautifulSoup HTML parsing module I installed locally
+import codecs
 
 # import my own local code
+import parseUtils
 import processAlbumCaption
 from ParseError import ParseError
 
@@ -25,8 +31,14 @@ def processAlbumHtml(htmlFile):
 	"""
 	
 	# open album index file and parse title & caption out of it
-	with open(htmlFile) as f:
+	# looks like most html files on disk are iso-8859-1
+	# and some have accented characters that fail json.dumps
+	# if we don't handle the encoding properly
+	with codecs.open(htmlFile, encoding='iso-8859-1') as f:
 		html = f.read()
+		
+		# Remove Windows /r/n newlines and a few other non-printable chars
+		html = parseUtils.remove_nonprinting_chars(html)
 		
 		# create parsed version of HTML file
 		parsedHtml = BeautifulSoup(html)

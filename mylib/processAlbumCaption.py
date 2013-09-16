@@ -71,7 +71,7 @@ def processAlbumCaption(htmlFile, html, parsedHtml):
 	# </TABLE>
 	# <P>
 	# <P>
-	# caption goes here
+	# Caption goes here
 	# <p>
 	# Return to <a href="http://tacocat.com/felix/">main Felix page</a>.
 	# </p>
@@ -92,19 +92,13 @@ Return to <a href="http://tacocat.com/felix/">main Felix page</a>""")
 	
 	
 	#
-	# LView Pro albums circa 2003/11 can have HTML like this:
+	# Albums circa 2003/11:
 	#
-	# <BODY link="#FF0000" vlink="#52188C" bgcolor="#FFFFFF" >
 	# <H2><FONT color="#000000"> October 27 - November 2</H2></FONT></TD>
-	# <img src="img/happy_halloween.jpg" alt="Happy Halloween!"/> <br />
-	# We've had a great week.  Felix has been adorable.   And Friday was our favorite American holiday, Halloween.
-	#
+	# Caption goes here
 	# <p>
 	# Return to <a href="http://tacocat.com/felix/">main Felix page</a>.
 	# </p>
-	# <P>
-	# <CENTER>
-	# <TABLE border="0" cellpadding="0" cellspacing="10" bgcolor="#FFFFFF" >
 	caption = parseUtils.find_between_r(html, 
 """</H2></FONT></TD>""", 
 """<p>
@@ -137,7 +131,7 @@ Return to <a href=""")
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 	
 	#
-	# Albums circa 2004/3
+	# Albums circa 2004/3:
 	#
 	# <H2><FONT color="#000000"> March 20-21</H2></FONT>
 	# Caption goes here
@@ -152,18 +146,23 @@ Return to the <a href=""")
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 	
 	#
-	# Albums circa 2004/01
+	# Albums circa 2004/01:
 	#
 	# <H2><FONT color="#000000"> December 29 - January 4</FONT></H2>
 	# Caption
 	# Return to <a href="../../index.html">main 2004 page</a>.
+	#
+	# Albums circa 2004/09:
+	# <H2>September 26</H2>
+	# Caption goes here
+	# <p>
+	# Return to <a href="../../index.html">main 2004 page</a>.
 	caption = parseUtils.find_between_r(html, 
-"""</FONT></H2>""", 
+"""</H2>""", 
 """Return to <a href="../../index.html">""")
 
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
-	
 	#
 	#
 	#
@@ -171,7 +170,6 @@ Return to the <a href=""")
 		'</TABLE>', 
 		'<TABLE border="0" cellpadding="0" cellspacing="10" bgcolor="#FFFFFF" >')
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)			
-	
 	
 	#
 	#
