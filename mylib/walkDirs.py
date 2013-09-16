@@ -78,7 +78,7 @@ def walkDirs(albumFilter):
 		albumsForYear = []
 
 		# skip all year dirs except the desired one
-		if albumFilter and year not in albumFilter: 
+		if albumFilter and not albumFilter.startswith(year): 
 			print "%s: skipping, it's not in %s" % (year, albumFilter)
 			continue
 		
@@ -95,6 +95,11 @@ def walkDirs(albumFilter):
 			if isAlbumToIgnore(monthDir):
 				print "   skipping: %s: it's a badly formatted album" % (monthDir)
 				continue
+				
+			# if albumFilter is more than a year, use it to filter the day albums
+			dayFilter = None
+			if len(albumFilter) > 4:
+				dayFilter = albumFilter
 				
 			#
 			# some years are weird and have a few albums directly under them
@@ -118,8 +123,8 @@ def walkDirs(albumFilter):
 					continue
 				
 				# skip all month dirs except the desired one
-				if albumFilter and yyyyMMdd not in albumFilter: 
-					print "   skipping %s: it's not in %s" % (yyyyMMdd, albumFilter)
+				if dayFilter and yyyyMMdd not in dayFilter: 
+					print "   skipping %s: it's not in %s" % (yyyyMMdd, dayFilter)
 					continue
 				
 				# album's created date is determined from the folder path, like "2001/12/31"
