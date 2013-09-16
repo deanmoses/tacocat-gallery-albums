@@ -14,14 +14,14 @@ from Config import Config
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(desiredSubDirs):
+def walkDirs(albumFilter):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
 	Parameters
 	----------
-	desiredSubDirs : [] of strings
-		only process these dirs, like ['1969']
+	albumFilter : string
+		will only process the specified album(s), like '2001/12/31/' or '2001' to process all albums in 2001
 	
 	Returns
 	----------
@@ -77,9 +77,9 @@ def walkDirs(desiredSubDirs):
 		year = yearDir.replace(Config.pixDir, '').strip("/")
 		albumsForYear = []
 
-		# skip all dirs except the desired one
-		if desiredSubDirs and year not in desiredSubDirs: 
-			print "%s: skipping, it's not in %s" % (year, desiredSubDirs)
+		# skip all year dirs except the desired one
+		if albumFilter and year not in albumFilter: 
+			print "%s: skipping, it's not in %s" % (year, albumFilter)
 			continue
 		
 		# skip all yearsToIgnore
@@ -95,7 +95,7 @@ def walkDirs(desiredSubDirs):
 			if isAlbumToIgnore(monthDir):
 				print "   skipping: %s: it's a badly formatted album" % (monthDir)
 				continue
-			
+				
 			#
 			# some years are weird and have a few albums directly under them
 			# mixed in with the months.  do we need to process or remove those?
@@ -109,14 +109,20 @@ def walkDirs(desiredSubDirs):
 			# walk the day folders under the month folder (these are individual albums)
 			#
 			for dayDir in sorted(glob.glob(monthDir + '*/')):
+				# get album's folder path, like "2001/12/31"
+				yyyyMMdd = dayDir.replace(Config.pixDir, '').strip("/")
+				
 				# skip all albums to ignore
 				if isAlbumToIgnore(dayDir):
-					print "   skipping: %s: it's a badly formatted album" % (dayDir)
+					print "   skipping %s: badly formatted album" % (yyyyMMdd)
 					continue
 				
-				# album's created date is determined from the folder structure
-				# path, like "2001/12/31"
-				yyyyMMdd = dayDir.replace(Config.pixDir, '').strip("/")
+				# skip all month dirs except the desired one
+				if albumFilter and yyyyMMdd not in albumFilter: 
+					print "   skipping %s: it's not in %s" % (yyyyMMdd, albumFilter)
+					continue
+				
+				# album's created date is determined from the folder path, like "2001/12/31"
 				timestamp = int(time.mktime(datetime.datetime.strptime(yyyyMMdd, "%Y/%m/%d").timetuple()))
 				
 				# create album	
@@ -136,7 +142,9 @@ def walkDirs(desiredSubDirs):
 					albumsForYear.append(processAlbum.processAlbum(subalbumDir, timestamp))
 		
 		# create year album and add it to master album list
-		albums.append(processYearAlbum.processYearAlbum(year, albumsForYear))
+		# but only if we're processing a full year
+		if (not albumFilter) or (len(albumFilter) == 4):
+			albums.append(processYearAlbum.processYearAlbum(year, albumsForYear))
 		
 		# add all the year's albums into the master album list
 		albums.extend(albumsForYear)

@@ -47,7 +47,7 @@ def processAlbum(albumDir, creationTimestamp):
 	# album's title is the long format day, like "December 31".  No year.
 	album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %d')
 
-	print "  %s" % (album.pathComponent)
+	print "   %s" % (album.pathComponent)
 	
 	#
 	# figure out path to album's index HTML file (has album title and caption)
