@@ -65,3 +65,7 @@
 2002/05/13/html/boat3.htm
 2002/05/13/html/boat4.htm
 2002/05/13/html/boat5.htm
+2002/05/13/moses/
+2002/06/03/html/foot2
+2003/03/09/html/deck2
+2003/04/27/html/bunny

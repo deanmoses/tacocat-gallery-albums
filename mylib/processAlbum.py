@@ -16,7 +16,7 @@ from Config import Config
 #
 # Process an individual album, creating an Album object
 #
-def processAlbum(albumDir):
+def processAlbum(albumDir, creationTimestamp):
 	'''
 	Process an individual album, creating an Album object
 	
@@ -32,8 +32,20 @@ def processAlbum(albumDir):
 	
 	# create the Album we'll be returning
 	album = Album()
+	
+	# path, like "2001/12/31" for normal week albums
+	# or "2001/12/31/schoolpix" for sub albums
 	album.pathComponent = albumDir.replace(Config.pixDir, '').strip("/")
-	album.creationTimestamp = int(time.mktime(datetime.datetime.strptime(album.pathComponent, "%Y/%m/%d").timetuple()))
+	
+	# album's created date
+	album.creationTimestamp = creationTimestamp
+	
+	# it's a sub album if the path has more than 2 slashes
+	# 2001/12/31" vs "2001/12/31/schoolpix"
+	isSubAlbum = album.pathComponent.count('/') > 2
+	
+	# album's title is the long format day, like "December 31".  No year.
+	album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %d')
 
 	print "  %s" % (album.pathComponent)
 	
@@ -53,7 +65,7 @@ def processAlbum(albumDir):
 	# extract title and caption from album's HTML file
 	#
 	
-	album.title, album.description = processAlbumHtml.processAlbumHtml(albumHtmlFile)
+	album.summary, album.description = processAlbumHtml.processAlbumHtml(albumHtmlFile)
 		
 	if (Config.verbose): print "caption: %s" % album.description
 		
@@ -85,7 +97,9 @@ def processAlbum(albumDir):
 		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
 		album.children.append(photo)
 
-		print "    %s" % (photo.pathComponent)
+		if Config.verbose:
+			print "    %s" % (photo.pathComponent)
+			
 		if (Config.verbose and photo.description): 
 			w = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False,initial_indent='      ',subsequent_indent='      ')
 			print w.fill(photo.description)

@@ -36,6 +36,13 @@ def processAlbumHtml(htmlFile):
 		#
 		title = parsedHtml.title.string
 		
+		if title:
+			# we don't want album titles like "January 1, 2002"
+			stopwords = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+			for stopword in stopwords:
+				if stopword in title.lower():
+					title = ''
+				
 		#
 		# get caption
 		#

@@ -61,12 +61,31 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 	# but make it pretty
 	#
 	if not photo.title:
-		# replace dashes and underscores with spaces
-		# do title capitalization
-		photo.title = string.capwords(photoName.replace('_', ' ').replace('-', ' '))
+		# remove numbers from the start of the title,
+		# they seem to always be used to order a set of photos
+		# turn 10sea-horses into sea-horses
+		# turn 01-julie into -julie
+		photo.title = re.sub(r'^(\d+)', r'', photoName)
 		
-		# turn Christmas Supper1 into Christmas Supper 1
-		photo.title = re.sub(r'(\d+)$', r' \1', photo.title)
+		# replace dashes and underscores with spaces
+		photo.title = photo.title.replace('_', ' ').replace('-', ' ').strip()
+		
+		# do title capitalization
+		photo.title = string.capwords(photo.title)
+		
+		# humanize numbers at the end of the title
+		# turn Christmas Supper01 into Christmas Supper 1
+		# turn Track 0 into Track
+		def processEndNumber(match):
+			match = match.group()
+			num = int(match)
+			if num == 0:
+				return ''
+			else:
+				return ' %s' % int(match)
+		
+		#photo.title = re.sub(r'(\d+)$', r' \1', photo.title)
+		photo.title = re.sub(r'(\d+)$', processEndNumber, photo.title)
 		
 		# turn Felixs into Felix's
 		names = ['Dean', 'Lucie', 'Felix', 'Milo', 'Nana', 'Austin', 'Mike']
@@ -75,6 +94,10 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 			expression2 = name + "'s "
 			photo.title = re.sub(str(expression1), str(expression2), photo.title)
 		
-		#print "temp title: %s" % photo.title
+		# get rid of two spaces in a row
+		photo.title = photo.title.replace('  ', ' ')
+		
+		# sanity check that all front and rear space is gone
+		photo.title = photo.title.strip()
 			
 	return photo

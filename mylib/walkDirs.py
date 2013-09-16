@@ -2,6 +2,8 @@
 import glob
 import os
 import sys
+import time
+import datetime
 
 # import my own local code
 import processAlbum
@@ -42,10 +44,18 @@ def walkDirs(desiredSubDirs):
 		'2001/09/bellytutu', 
 		'2001/10/doughboy', 
 		'2001/10/mermaid', 
-		'2003/12/ultrasound_bastille'
+		'2002/04/29/sasha/',
+		'2002/07/21/for_austin',
+		'2003/02/09/priceless',
+		'2003/03/02/holly_park',
+		'2003/03/09/molly_car',
+		'2003/04/06/the_mint',
+		'2003/12/ultrasound_bastille',
+		'2003/07/27/no_links_please',
 		'2004/04/08/', 
 		'2005/12/01/',
-		'2005/12/22/']
+		'2005/12/22/',
+		]
 		
 	# return true if album is one to ignore
 	def isAlbumToIgnore(albumDir):
@@ -54,7 +64,7 @@ def walkDirs(desiredSubDirs):
 				return True
 	
 	# return true if directory is one of the normal working dirs
-	normalDirs = ['slides', 'images', 'html', 'thumbnails', 'res', 'video']
+	normalDirs = ['slides', 'images', 'img', 'html', 'thumbnails', 'res', 'video']
 	def isNormalDir(dir):
 		for normalDir in normalDirs:
 			if normalDir in dir:
@@ -103,8 +113,14 @@ def walkDirs(desiredSubDirs):
 				if isAlbumToIgnore(dayDir):
 					print "   skipping: %s: it's a badly formatted album" % (dayDir)
 					continue
-								
-				albumsForYear.append(processAlbum.processAlbum(dayDir))
+				
+				# album's created date is determined from the folder structure
+				# path, like "2001/12/31"
+				yyyyMMdd = dayDir.replace(Config.pixDir, '').strip("/")
+				timestamp = int(time.mktime(datetime.datetime.strptime(yyyyMMdd, "%Y/%m/%d").timetuple()))
+				
+				# create album	
+				albumsForYear.append(processAlbum.processAlbum(dayDir, timestamp))
 				
 				#
 				# some albums have sub albums
@@ -114,7 +130,10 @@ def walkDirs(desiredSubDirs):
 					if isAlbumToIgnore(subalbumDir):
 						print "   skipping: %s: it's a badly formatted album" % (subalbumDir)
 						continue
-					albumsForYear.append(processAlbum.processAlbum(subalbumDir))
+						
+					# create sub album
+					# give it same creation date as parent album
+					albumsForYear.append(processAlbum.processAlbum(subalbumDir, timestamp))
 		
 		# create year album and add it to master album list
 		albums.append(processYearAlbum.processYearAlbum(year, albumsForYear))

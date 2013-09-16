@@ -1,9 +1,9 @@
 # import external libraries
 import sys
+import string
 
 # import my own local code
-from parseUtils import find_between
-from parseUtils import clean_caption
+import parseUtils
 from Config import Config
 from ParseError import ParseError
 
@@ -50,6 +50,10 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# now try a whole bunch of different parsing routines
 	#####################################################
 	
+	# Dunno if any of the files actually have Windows /r/n newlines,
+	# but let's remove them right now
+	html = html.strip('\r\v\f')
+	
 	#
 	# LView Pro albums circa 2001 have HTML like this:
 	#
@@ -57,17 +61,17 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# File: C:\Documents and Settings\moses.MOSESREMOTE\My Documents\My Pictures\tacocat\felix\2001.12.17-23\raw_images\maman_dans_la_cuisine.txt
 	# -->
 	# While Lucie kept Felix from starving, Francoise kept Lucie from starving. 
-	# <p>
-	# <center>
-	# <table bgcolor="#FFFFFF" border="0" cellpadding="0" cellspacing="2" width="200">
+	# <P>
+	# <CENTER>
+	# <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
 	#
-	caption = find_between(html, 
+	caption = parseUtils.find_between_r(html, 
 """-->""", 
 """<P>
 <CENTER>
 <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >""")
 
-	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
 	#
 	# LView Pro albums circa 2001 can also have HTML like this:
@@ -81,20 +85,18 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# <CENTER>
 	# <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
 	#
-	caption = find_between(html, 
+	caption = parseUtils.find_between_r(html, 
 """</TABLE>
 </CENTER>
 <P>
 <P>""", 
 """<P>
 <CENTER>
-<TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
-""")
+<TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >""")
 
-	if caption: return clean_caption(caption, htmlFile, html, parsedHtml)
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
-
-
+	
 	#
 	# if we haven't figured out a caption at this point, we need
 	# to improve the parsing.  print out some diagnostics and exit

@@ -16,6 +16,19 @@ def find_between( s, first, last ):
 		return ""
 
 #
+# find string between two other strings,
+# starting with the rightmost occurence
+# of the second string
+#
+def find_between_r( s, beforeString, afterString ):
+	try:
+		end = s.rindex( afterString )
+		start = s.rindex( beforeString, 0, end) + len( beforeString )
+		return s[start:end]
+	except ValueError:
+		return ""
+	
+#
 # clean up caption 
 #
 def clean_caption(dirtyCaption, htmlFile, html, parsedHtml):
