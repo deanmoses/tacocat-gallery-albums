@@ -44,8 +44,8 @@ def processAlbum(albumDir, creationTimestamp):
 	# 2001/12/31" vs "2001/12/31/schoolpix"
 	isSubAlbum = album.pathComponent.count('/') > 2
 	
-	# album's title is the long format day, like "December 31".  No year.
-	album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %d')
+	# album's title is the long format day, like "December 1".  No year.
+	album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %-d')
 
 	print "   %s" % (album.pathComponent)
 	

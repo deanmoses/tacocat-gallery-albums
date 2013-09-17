@@ -3,6 +3,7 @@
 #
 
 # third party libs
+import sys
 #import pdb
 
 # import my own libs
@@ -59,14 +60,17 @@ def clean_caption(dirtyCaption, htmlFile, html, parsedHtml):
 	Exception if caption is invalid
 	'''
 	
-	if not dirtyCaption: return ''
+	if not dirtyCaption: 
+		return ''
 	
+	# not sure how some captions aren't being returned as strings, but it's happening, rarely
 	cleanCaption = dirtyCaption.strip()
-	
+
+	# check for stuff that would indicate that parsing went wrong
 	disallowedThings = ['<!--', '-->', '<table', '</table>']
 	for disallowedThing in disallowedThings:
 		if disallowedThing in cleanCaption:
-			raise ParseError('caption contains a [%s]: %s' % disallowedThing, cleanCaption, htmlFile, html, parsedHtml)
+			raise ParseError('caption contains a [%s]: %s' % (disallowedThing, cleanCaption), htmlFile, html, parsedHtml)
 
 	return cleanCaption
 

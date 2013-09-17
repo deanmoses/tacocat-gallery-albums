@@ -56,7 +56,7 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	# <!--
 	# File: C:\Documents and Settings\moses.MOSESREMOTE\My Documents\My Pictures\tacocat\felix\2001.12.17-23\raw_images\maman_dans_la_cuisine.txt
 	# -->
-	# While Lucie kept Felix from starving, Francoise kept Lucie from starving. 
+	# Caption goes here 
 	# <P>
 	# <CENTER>
 	# <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
@@ -70,13 +70,13 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
 	#
-	# Albums circa 2001:
+	# Albums 2001-2004:
 	#
 	# </TABLE>
 	# </CENTER>
 	# <P>
 	# <P>
-	# Alicia gives Lucie, Moses, and Felix a lesson in how to feed from a pinky.
+	# Caption goes here
 	# <P>
 	# <CENTER>
 	# <TABLE border="0" cellpadding="0" cellspacing="2" width="200" bgcolor="#FFFFFF" >
@@ -92,6 +92,76 @@ def processPhotoCaption(htmlFile, html, parsedHtml):
 
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 
+	#
+	# Albums starting 2005/01:
+	#
+	# <!-- Commentary on the picture -->
+	#
+	# <br>
+	# Caption goes here
+	# <br>&nbsp;<br>
+	#
+	caption = parseUtils.find_between_r(html, 
+"""<!-- Commentary on the picture -->
+
+<br>""", 
+"""<br>&nbsp;<br>""")
+
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
+	
+	#
+	# Album 2005/01
+	#
+	# <!-- Commentary on the picture -->
+	#
+	# <br>
+	# Caption goes here
+	# <center>
+	# <!-- Image, maybe with link to original -->
+	#
+	caption = parseUtils.find_between_r(html,
+"""<!-- Commentary on the picture -->
+
+<br>""", 
+"""<center>
+<!-- Image, maybe with link to original -->""")
+
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
+	
+	#
+	# Album 2005/04
+	#
+	# <!-- Commentary on the picture -->
+	# Caption goes here
+	# <br>&nbsp;<br>
+	#
+	caption = parseUtils.find_between_r(html,
+"""<!-- Commentary on the picture -->""", 
+"""<br>&nbsp;<br>""")
+	
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
+	
+	#
+	# Album 2006/07
+	#
+	# <!-- Comment -->
+	#
+	# <br>
+	# <SPAN class="comment">The house has its own boat dock, with two great big boats.  Unfortunately they belong to a neighbor.</SPAN>
+	#
+	#
+	#<br>&nbsp;<br>
+	#<center>
+	#<!-- Image, maybe with link to original -->
+	#
+	if not parsedHtml.body:
+		sys.exit("cannot find parsedHtml.body %s" % parsedHtml) 
+
+	captionElement = parsedHtml.body.find('span', attrs={'class':'comment'})
+	if captionElement:
+		caption = unicode(captionElement)
+		if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
+	
 	
 	#
 	# if we haven't figured out a caption at this point, we need

@@ -172,17 +172,48 @@ Return to the <a href=""")
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)			
 	
 	#
+	# Albums starting 2005/01
 	#
+	# <hr size=1 color="#F19753" />
 	#
-	if not parsedHtml.body:
-		sys.exit("cannot find parsedHtml.body %s" % parsedHtml) 
-	
-	caption = parsedHtml.body.find('p', attrs={'class':'para'})
-	
+	# <!-- Include header.inc from the source image directory if present -->
+	# Caption goes here
+	# <br>&nbsp;<br>
+	#
+	#<!-- Table of thumbnails -->
+	#
+	caption = parseUtils.find_between_r(html, 
+"""<!-- Include header.inc from the source image directory if present -->""", 
+"""<br>&nbsp;<br>""")
+
 	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 	
+	#
+	# Albums starting 2005/04
+	#
+	# <!-- Include header.inc from the source image directory if present -->
+	# Caption goes here
+	# <!-- Table of thumbnails -->
+	#
+	caption = parseUtils.find_between_r(html, 
+"""<!-- Include header.inc from the source image directory if present -->""", 
+"""<!-- Table of thumbnails -->""")
 
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)
 	
+	#
+	# Albums starting 2006/07
+	#
+	# <hr size=1 color="#F19753" />
+	# Caption goes here	
+	# <br>&nbsp;<br>
+	#
+	caption = parseUtils.find_between_r(html, 
+"""<hr size=1 color="#F19753" />""", 
+"""<br>&nbsp;<br>""")
+
+	if caption: return parseUtils.clean_caption(caption, htmlFile, html, parsedHtml)	
+
 	#
 	# if we haven't figured out a caption at this point, we need
 	# to improve the parsing. 

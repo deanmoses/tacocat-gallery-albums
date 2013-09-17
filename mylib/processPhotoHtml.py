@@ -42,7 +42,15 @@ def processPhotoHtml(htmlFile):
 		#
 		# get title
 		#
-		photoTitle = parsedHtml.title.string
+		photoTitle = parsedHtml.title.string if parsedHtml.title else ''
+		
+		# all albums in 2005 have a title of this format:
+		# jasper2 - December 11, 2005 - The Moses Family
+		# that doesn't add any useful info, just blank it out so 
+		# that the system takes the filename as the title
+		# instead
+		if photoTitle and 'The Moses Family' in photoTitle:
+			photoTitle = ''
 		
 		#
 		# get caption

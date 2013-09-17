@@ -56,8 +56,11 @@ def walkDirs(albumFilter):
 		'2004/07/24/father-son/',
 		'2004/08/15/audio',
 		'2004/09/26/audio',
+		'2005/08/window',
+		'2005/11/13/evolution',
 		'2005/12/01/',
-		'2005/12/22/'
+		'2005/12/22/',
+		'2006/newschool'
 		]
 		
 	# return true if album is one to ignore
@@ -67,7 +70,7 @@ def walkDirs(albumFilter):
 				return True
 	
 	# return true if directory is one of the normal working dirs
-	normalDirs = ['slides', 'images', 'img', 'html', 'thumbnails', 'res', 'video']
+	normalDirs = ['slides', 'images', 'img', 'html', 'thumbnails', 'thumbs', 'res', 'video', 'audio']
 	def isNormalDir(dir):
 		for normalDir in normalDirs:
 			if normalDir in dir:
@@ -109,7 +112,7 @@ def walkDirs(albumFilter):
 			# mixed in with the months.  do we need to process or remove those?
 			#
 			if os.path.isdir(monthDir + 'slides') or os.path.isdir(monthDir + 'html'):
-				raise Exception("weird folder structure:  expecting month, was not one")
+				raise Exception("%s: weird folder structure:  expecting month, was not one" % monthDir)
 				albumsForYear.append(processAlbum.processAlbum(monthDir))
 				continue
 			
