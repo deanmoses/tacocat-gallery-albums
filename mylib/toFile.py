@@ -13,7 +13,7 @@ from Config import Config
 # The string may be in XML or JSON or another format, 
 # it's not the job of this method to know.
 #
-def toFile(albumPath, albumString, overwriteFiles):
+def toFile(albumPath, albumString, overwriteFiles=True):
 	'''
 	Write specified string representing an Album to a file on disk.
 	The string may be in XML or JSON or another format, 
@@ -41,5 +41,15 @@ def toFile(albumPath, albumString, overwriteFiles):
 		# write the file
 		with open(albumPath, "w+") as f:
 		    f.write(albumString)
-		
-		print "Wrote to %s" % albumPath
+
+#
+# Retrieve album string from path
+#
+def fromFile(albumPath):
+	albumString = None
+	
+	with open(albumPath) as f:
+		albumString = f.read()
+	
+	return albumString
+	

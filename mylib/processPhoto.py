@@ -46,9 +46,9 @@ def processPhoto(htmlDir, imageDir, photoHtmlFile):
 	if not os.path.isfile(imageFile):
 		sys.exit("cannot find image file for %s at %s" % (photoTitle, imageFile));
 	
-	photo = Photo()
+	photo = Photo({})
 	photo.pathComponent = os.path.basename(imageFile)
-	photo.fullSizeImage = Image()
+	photo.fullSizeImage = Image({})
 	photo.fullSizeImage.url = Config.httpRoot + imageFile.replace(Config.webRoot, '')
 	
 	#

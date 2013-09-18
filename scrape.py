@@ -25,41 +25,13 @@ parser.add_argument('-write', dest='doWriteToDisk', action='store_const', const=
 parser.add_argument('-f', dest='overwriteFiles', action='store_const', const=True, help='overwrite existing files')
 args = parser.parse_args()
 
-if args.verbose:
-	Config.verbose = True
+# use command-line args
+Config.verbose = args.verbose
+Config.doWriteToDisk = args.doWriteToDisk
 
 albumFilter = args.albumFilter[0]
 if len(albumFilter) < 4 or not albumFilter[:4].isdigit():
 	sys.exit('-album must start with a 4 digit year.  Intead got %s' % albumFilter[:4])
 
-# so I can read diagnostic output better
-print """\n\n\n\n\n\n
-------------------------------------------
------------ scraping albums --------------
-------------------------------------------"""
-
-# scrape the albums into Album objects in memory
+# scrape the albums
 albums = walkDirs(albumFilter)
-
-print """\n
-------------------------------------------
------------ printing albums --------------
-------------------------------------------"""
-
-# print or write the albums
-for album in albums:
-	# turn album into text string
-	#albumString = toXml(album)
-	albumString = toJson(album)
-	
-	# full path to write album file to
-	albumPath = '%s%s/album.json' % (Config.outDir, album.pathComponent)
-	
-	if (args.doWriteToDisk):
-		# write album text string to disk
-		toFile(albumPath, albumString, args.overwriteFiles)
-	else:
-		print albumString
-		print 'Would have written to: %s' % albumPath
-		
-	print '''\n-----------\n'''

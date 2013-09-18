@@ -24,3 +24,7 @@ class Config:
 	# output verbose logging
 	# this is set by a command line option
 	verbose = False
+	
+	# save albums to disk
+	# this is set by a command line option
+	doWriteToDisk = True

@@ -4,7 +4,6 @@
 
 # third party libs
 import sys
-#import pdb
 
 # import my own libs
 from ParseError import ParseError

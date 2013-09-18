@@ -14,19 +14,27 @@ from Config import Config
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(albumFilter):
+def walkDirs(albumFilter, update=False):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
 	Parameters
 	----------
 	albumFilter : string
-		will only process the specified album(s), like '2001/12/31/' or '2001' to process all albums in 2001
+		will only process the specified album(s), like:
+		'2001/12/31' to process just the Dec 31, 2001 album
+		'2001/12' to process all albums in Dec 2001
+		'2001' to process all albums in 2001
 	
 	Returns
 	----------
 	A list of Album objects
 	'''
+	
+	print """\n\n\n\n\n\n
+------------------------------------------
+----------- scraping albums --------------
+------------------------------------------"""
 	
 	# list of albums we'll be creating
 	albums = []
@@ -113,9 +121,7 @@ def walkDirs(albumFilter):
 			#
 			if os.path.isdir(monthDir + 'slides') or os.path.isdir(monthDir + 'html'):
 				raise Exception("%s: weird folder structure:  expecting month, was not one" % monthDir)
-				albumsForYear.append(processAlbum.processAlbum(monthDir))
-				continue
-			
+
 			#
 			# walk the day folders under the month folder (these are individual albums)
 			#
@@ -136,8 +142,8 @@ def walkDirs(albumFilter):
 				# album's created date is determined from the folder path, like "2001/12/31"
 				timestamp = int(time.mktime(datetime.datetime.strptime(yyyyMMdd, "%Y/%m/%d").timetuple()))
 				
-				# create album	
-				albumsForYear.append(processAlbum.processAlbum(dayDir, timestamp))
+				# create album
+				albumsForYear.append(processAlbum.processAlbum(dayDir, timestamp, update))
 				
 				#
 				# some albums have sub albums
@@ -150,12 +156,12 @@ def walkDirs(albumFilter):
 						
 					# create sub album
 					# give it same creation date as parent album
-					albumsForYear.append(processAlbum.processAlbum(subalbumDir, timestamp))
+					albumsForYear.append(processAlbum.processAlbum(subalbumDir, timestamp, update))
 		
 		# create year album and add it to master album list
 		# but only if we're processing a full year
 		if (not albumFilter) or (len(albumFilter) == 4):
-			albums.append(processYearAlbum.processYearAlbum(year, albumsForYear))
+			albums.append(processYearAlbum.processYearAlbum(year, albumsForYear, update))
 		
 		# add all the year's albums into the master album list
 		albums.extend(albumsForYear)
