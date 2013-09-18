@@ -30,8 +30,7 @@ def parseDiskPath(albumPath):
 	Exception if album is NOT a valid album path
 	'''
 	pathParts = albumPath.split('/')
-	if len(pathParts) < 2: raise Exception('not enough segments in %s' % albumPath)
-	if len(pathParts) > 3: raise Exception('too many segments in %s' % albumPath)
+	if len(pathParts) > 4: raise Exception('too many segments in %s' % albumPath)
 	
 	#
 	# validate year

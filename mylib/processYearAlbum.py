@@ -33,7 +33,7 @@ def processYearAlbum(year, subalbums, update=True):
 	An Album object for the overall year
 	'''
 	
-	print "  %s" % (year)
+	print "--------------------------\n%s: processing..." % (year)
 	
 	# retrieve the Album we'll be updating
 	album = AlbumStore.getAlbum(year)

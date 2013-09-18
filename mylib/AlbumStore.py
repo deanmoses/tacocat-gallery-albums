@@ -109,9 +109,9 @@ class AlbumStore(object):
 		if Config.doWriteToDisk:
 			# write to disk
 			toFile.toFile(albumFilePath, albumString)
-			print "Wrote to %s" % albumFilePath
+			print '    Wrote to %s' % albumFilePath
 		else:
 			if Config.verbose:
 				print albumString
-			print 'would have written to %s' % albumFilePath
+			print '    Would have written to %s' % albumFilePath
 			

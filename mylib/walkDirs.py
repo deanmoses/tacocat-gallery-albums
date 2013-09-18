@@ -107,7 +107,7 @@ def walkDirs(albumFilter, update=False):
 		for monthDir in sorted(glob.glob(yearDir + '*/')):
 			# skip all albums to ignore
 			if isAlbumToIgnore(monthDir):
-				print "   skipping: %s: it's a badly formatted album" % (monthDir)
+				print "%s: skipping, badly formatted album" % (monthDir)
 				continue
 				
 			# if albumFilter is more than a year, use it to filter the day albums
@@ -131,12 +131,12 @@ def walkDirs(albumFilter, update=False):
 				
 				# skip all albums to ignore
 				if isAlbumToIgnore(dayDir):
-					print "   skipping %s: badly formatted album" % (yyyyMMdd)
+					print "%s: skipping, badly formatted album" % (yyyyMMdd)
 					continue
 				
 				# skip all month dirs except the desired one
 				if dayFilter and yyyyMMdd not in dayFilter: 
-					print "   skipping %s: it's not in %s" % (yyyyMMdd, dayFilter)
+					print "%s: skipping, it's not in %s" % (yyyyMMdd, dayFilter)
 					continue
 				
 				# album's created date is determined from the folder path, like "2001/12/31"
@@ -151,7 +151,7 @@ def walkDirs(albumFilter, update=False):
 				for (subalbumDir) in sorted(glob.glob(dayDir + '*/')):
 					if (isNormalDir(subalbumDir)): continue
 					if isAlbumToIgnore(subalbumDir):
-						print "   skipping: %s: it's a badly formatted album" % (subalbumDir)
+						print "%s: skipping, it's a badly formatted album" % (subalbumDir)
 						continue
 						
 					# create sub album

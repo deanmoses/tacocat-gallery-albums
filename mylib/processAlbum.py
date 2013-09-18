@@ -49,14 +49,14 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 	# 2001/12-31" vs "2001/12-31/schoolpix"
 	isSubAlbum = pathComponent.count('/') > 1
 	
-	print "   %s" % (pathComponent)
+	print "--------------------------\n%s: processing..." % (pathComponent)
 
 	# retrieve the Album we'll be updating
 	album = AlbumStore.getAlbum(pathComponent)
 
 	# if not found, create Album
 	if not album:
-		print 'No album found for %s.  Creating.' % pathComponent
+		print '    %s: no album found, creating.' % pathComponent
 		album = Album()
 
 	if update:
@@ -113,10 +113,12 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 			album.summary = processAlbumHtml.scrapeSummary(parsedHtml)
 			
 			album.description = processAlbumHtml.scrapeCaption(albumHtmlFile, html, parsedHtml)
-			if (Config.verbose): print "caption: %s" % album.description
+			if (Config.verbose): print "    Caption: %s" % album.description
 			
 			album.childrenOrder = processAlbumHtml.scrapePhotoOrder(albumHtmlFile, html, parsedHtml)
-			# print "children order: %s" % album.childrenOrder
+			if len(album.childrenOrder) < 3:
+				sys.exit('    Got less than %s thumbs for album %s: %s' % (3, albumHtmlFile, album.childrenOrder))
+			print "    children order: %s" % album.childrenOrder
 	
 	#
 	# Process photos
@@ -125,7 +127,7 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 	# the old children format was a list, moved to a dict
 	# once I run through all albums once I could remove this
 	if isinstance(album.children, list):
-		print 'album %s children were old format (list), converting to dict' % pathComponent
+		print '    album %s children were old format (list), converting to dict' % pathComponent
 	album.children = {}
 	
 	#
@@ -140,10 +142,10 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 		imageDir = htmlDir
 	
 	if not os.path.isdir(htmlDir):
-		sys.exit("cannot find HTML dir for %s" % albumDir)
+		sys.exit("    cannot find HTML dir for %s" % albumDir)
 		
 	if not os.path.isdir(imageDir):
-		sys.exit("cannot find image dir for %s" % albumDir)
+		sys.exit("    cannot find image dir for %s" % albumDir)
 
 	#
 	# process each photo
@@ -158,19 +160,30 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 
 		# error if there are photo HTML files that aren't in the thumbnail order
 		if (photoName not in album.childrenOrder):
-			print 'Photo %s is not in %s childrenOrder: %s' % (photoName, album.pathComponent, album.childrenOrder)
+			print '    Photo %s is not in %s\n    childrenOrder: %s' % (photoName, album.pathComponent, album.childrenOrder)
 			continue
 			
 		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
 		album.children[photoName] = photo
 			
 		if Config.verbose:
-			print "    %s" % (photo.pathComponent)
+			print "    %s: processing..." % (photo.pathComponent)
 		
 		if (Config.verbose and photo.description): 
 			w = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False,initial_indent='      ',subsequent_indent='      ')
 			print w.fill(photo.description)
 			#print "      %s" % (photo.description)
+	
+	# Verify that chidrenOrder contains all the photos
+	# we just added.  If it doesn't, that means the
+	# thumbnail scraping wasn't good.
+	childrenNames = album.children.keys()
+	for childOrderName in album.childrenOrder:
+		if childOrderName not in childrenNames:
+			raise Exception('Album %s: children contains photo %s, which is not in childOrder.\nchildOrder: %s\nchildren: %s' % (album.pathComponent, childOrderName, album.childOrder, album.children))
+			
+	if len(album.childrenOrder) != len(album.children):
+		raise Exception('Album %s: childOrder length (%s) is not same same as children length (%s).\nchildOrder: %s\nchildren: %s' % (album.pathComponent, len(album.childrenOrder), len(album.children), album.childOrder, album.children))
 		
 	# save album
 	AlbumStore.saveAlbum(album)

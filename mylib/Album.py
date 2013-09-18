@@ -17,3 +17,4 @@ class Album(object):
 		
 		for key in initial_dict:
 			setattr(self, key, initial_dict[key])
+	

@@ -4,6 +4,7 @@
 
 # import external libraries
 import sys
+import os
 
 # import my own local code
 import parseUtils
@@ -106,8 +107,30 @@ def scrapePhotoOrder(albumHtmlFile, html, parsedHtml):
 	
 	if len(imageNames) > 0: return imageNames
 	
-	if len(imageNames) < 3:
-		sys.exit('Got less than %s thumbs for album %s: %s' % (3, albumHtmlFile, imageNames))
+	#
+	# Album 2005/01
+	#
+	# <td width="100" valign="bottom" class="thumbnail-cell">
+	#    <a href="slides/amtrak1.html">
+	# 		<img class="thumbnail-image" src="thumbs/amtrak1.jpg" width="100" height="75"><br>
+	# 		amtrak1
+	#    </a>
+	# </td>
+	for imgTag in parsedHtml.body.findAll('img', {"class" : "thumbnail-image"}):
+		imgSrc = imgTag['src']
+		imgFilename = os.path.split(imgSrc)[1]
+		photoName = os.path.splitext(imgFilename)[0]
+		imageNames.append(photoName)
+		
+	if len(imageNames) > 0: return imageNames
+	
+	
+	
+	#
+	# Did not find thumbs:  fail
+	#
+	if len(imageNames) <= 0:
+		sys.exit('    %s: did not find any thumbs' % (albumHtmlFile))
 		
 	return imageNames
 		

@@ -32,7 +32,7 @@ def toFile(albumPath, albumString, overwriteFiles=True):
 	'''
 	
 	if not overwriteFiles and os.path.isfile(albumPath):
-		print "Not writing - file already exists: %s" % albumPath
+		print "    Not writing - file already exists: %s" % albumPath
 	else:
 		# make any of the parent dirs that haven't yet been created
 		parentDir = os.path.dirname(os.path.realpath(albumPath))
