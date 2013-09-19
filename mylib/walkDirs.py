@@ -14,7 +14,7 @@ from Config import Config
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(albumFilter, update=True):
+def walkDirs(albumFilter):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
@@ -25,20 +25,13 @@ def walkDirs(albumFilter, update=True):
 		'2001/12/31' to process just the Dec 31, 2001 album
 		'2001/12' to process all albums in Dec 2001
 		'2001' to process all albums in 2001
-	
-	Returns
-	----------
-	A list of Album objects
 	'''
 	
 	print """\n\n\n\n\n\n
 ------------------------------------------
 ----------- scraping albums --------------
 ------------------------------------------"""
-	
-	# list of albums we'll be creating
-	albums = []
-	
+		
 	#
 	# these are all the albums I'll have to do by hand
 	#
@@ -89,7 +82,6 @@ def walkDirs(albumFilter, update=True):
 	#
 	for yearDir in sorted(glob.glob(Config.pixDir + '[0-9]*/')):
 		year = yearDir.replace(Config.pixDir, '').strip("/")
-		albumsForYear = []
 
 		# skip all year dirs except the desired one
 		if albumFilter and not albumFilter.startswith(year): 
@@ -100,6 +92,10 @@ def walkDirs(albumFilter, update=True):
 		if year in yearsToIgnore: 
 			print "%s: skipping, it's a badly formatted year" % (year)
 			continue
+			
+		# create or update year album
+		processYearAlbum.processYearAlbum(year)
+		
 				
 		#
 		# walk the month folders under the year folder
@@ -114,7 +110,7 @@ def walkDirs(albumFilter, update=True):
 			dayFilter = None
 			if len(albumFilter) > 4:
 				dayFilter = albumFilter
-				
+			
 			#
 			# some years are weird and have a few albums directly under them
 			# mixed in with the months.  do we need to process or remove those?
@@ -142,8 +138,8 @@ def walkDirs(albumFilter, update=True):
 				# album's created date is determined from the folder path, like "2001/12/31"
 				timestamp = int(time.mktime(datetime.datetime.strptime(yyyyMMdd, "%Y/%m/%d").timetuple()))
 				
-				# create album
-				albumsForYear.append(processAlbum.processAlbum(dayDir, timestamp, update))
+				# create or update day album
+				processAlbum.processAlbum(dayDir, timestamp)
 				
 				#
 				# some albums have sub albums
@@ -154,17 +150,7 @@ def walkDirs(albumFilter, update=True):
 						print "%s: skipping, it's a badly formatted album" % (subalbumDir)
 						continue
 						
-					# create sub album
+					# create or update sub album
 					# give it same creation date as parent album
-					albumsForYear.append(processAlbum.processAlbum(subalbumDir, timestamp, update))
+					processAlbum.processAlbum(subalbumDir, timestamp)
 		
-		# create year album and add it to master album list
-		# but only if we're processing a full year
-		if (not albumFilter) or (len(albumFilter) == 4):
-			albums.append(processYearAlbum.processYearAlbum(year, albumsForYear, update))
-		
-		# add all the year's albums into the master album list
-		albums.extend(albumsForYear)
-				
-	# return the album objects -- still in memory, haven't been written to disk
-	return albums;

@@ -20,7 +20,7 @@ from Config import Config
 #
 # Process an individual album, creating an Album object
 #
-def processAlbum(albumDir, creationTimestamp, update=True):
+def processAlbum(albumDir, creationTimestamp):
 	'''
 	Process an individual album, creating an Album object.
 	This is for week albums and subalbums.  *NOT* for year albums.
@@ -29,14 +29,6 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 	----------
 	albumDir : string
 		full path to album, like /home/deanmoses/...
-		
-	update : boolean
-		false: replace the contents of the existing Album
-		true: do an incremental update, just replacing a few new things
-	
-	Returns
-	----------
-	An Album object
 	'''
 	
 	# figure out the pathComponent, which is the logical path used in 
@@ -53,21 +45,11 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 
 	# retrieve the Album we'll be updating
 	album = AlbumStore.getAlbum(pathComponent)
-
+	isNew = not album
+	
 	# if not found, create Album
-	if not album:
-		import pdb
-		
-		print '    %s: no album found, creating.' % pathComponent
-		
-		pdb.set_trace()
+	if isNew:
 		album = Album()
-
-	if update:
-		if not album.pathComponent: raise Exception('no album.pathComponent in %s' % pathComponent)
-		if not album.creationTimestamp: raise Exception('no album.creationTimestamp in %s' % pathComponent)
-		if not album.title: raise Exception('no album.title')
-	else:	
 		album.pathComponent = pathComponent
 		
 		# album's created date
@@ -75,11 +57,17 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 		
 		# album's title is the long format day, like "December 1".  No year.
 		album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %-d')
-
+		
+	# otherwise just validate the existing data
+	else:
+		if not album.pathComponent: raise Exception('no album.pathComponent in %s' % pathComponent)
+		if not album.creationTimestamp: raise Exception('no album.creationTimestamp in %s' % pathComponent)
+		if not album.title: raise Exception('no album.title')
+		
+		
 	#
-	# figure out path to album's index HTML file (has album title and caption)
+	# figure out path to album's index HTML file
 	#
-	
 	albumHtmlFile = albumDir + 'index.php' # newer .php takes precedence over older .htm files
 	if not os.path.isfile(albumHtmlFile):
 		albumHtmlFile = albumDir + 'index.htm'
@@ -87,7 +75,20 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 		albumHtmlFile = albumDir + 'index.html'
 	if not os.path.isfile(albumHtmlFile):
 		sys.exit("cannot find album index HTML at %s" % albumHtmlFile)
-	
+
+	#
+	# figure out path to album's HTML and image directories
+	#
+	htmlDir = albumDir + 'html/'
+	imageDir = albumDir + "images/"
+	if not os.path.isdir(htmlDir):
+		htmlDir = albumDir + "slides/"
+		imageDir = htmlDir
+	if not os.path.isdir(htmlDir):
+		sys.exit("    cannot find HTML dir for %s" % albumDir)
+	if not os.path.isdir(imageDir):
+		sys.exit("    cannot find image dir for %s" % albumDir)
+			
 	#
 	# read album index file and parse stuff out of it, like the album's caption
 	#
@@ -104,16 +105,9 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 		parsedHtml = BeautifulSoup(html)
 			
 		#
-		# extract summary and caption from album's HTML file
+		# extract summary, caption and child order from album's HTML file
 		#
-		if update:			
-			# too many albums don't have summaries to do this sanity check
-			#if not album.summary: raise Exception('no album.summary in %s' % pathComponent)
-			
-			# too many albums don't have descriptions to do this sanity check
-			#if not album.description: raise Exception('no album.description')
-			pass
-		else:
+		if isNew:
 			album.summary = processAlbumHtml.scrapeSummary(parsedHtml)
 			
 			album.description = processAlbumHtml.scrapeCaption(albumHtmlFile, html, parsedHtml)
@@ -128,32 +122,6 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 	# Process photos
 	#
 	
-	# the old children format was a list, moved to a dict
-	# once I run through all albums once I could remove this
-	if isinstance(album.children, list):
-		print '    album %s children were old format (list), converting to dict' % pathComponent
-	album.children = {}
-	
-	#
-	# figure out path to album's HTML and image directories
-	#
-	htmlDir = albumDir + 'html/'
-	imageDir = albumDir + "images/"
-
-	# in other years, both the HTML and the images are in slides/
-	if not os.path.isdir(htmlDir):
-		htmlDir = albumDir + "slides/"
-		imageDir = htmlDir
-	
-	if not os.path.isdir(htmlDir):
-		sys.exit("    cannot find HTML dir for %s" % albumDir)
-		
-	if not os.path.isdir(imageDir):
-		sys.exit("    cannot find image dir for %s" % albumDir)
-
-	#
-	# process each photo
-	#
 	htmlFiles = []
 	htmlFiles.extend(glob.glob(htmlDir + '*.htm'))
 	htmlFiles.extend(glob.glob(htmlDir + '*.html'))
@@ -166,17 +134,18 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 		if (photoName not in album.childrenOrder):
 			print '    Photo %s is not in %s\n    childrenOrder: %s' % (photoName, album.pathComponent, album.childrenOrder)
 			continue
-			
-		photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
-		album.children[photoName] = photo
-			
-		if Config.verbose:
-			print "    %s: processing..." % (photo.pathComponent)
 		
-		if (Config.verbose and photo.description): 
-			w = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False,initial_indent='      ',subsequent_indent='      ')
-			print w.fill(photo.description)
-			#print "      %s" % (photo.description)
+		if isNew:
+			photo = processPhoto.processPhoto(htmlDir, imageDir, htmlFile)
+			album.children[photoName] = photo
+			
+			if Config.verbose:
+				print "    %s: processing..." % (photo.pathComponent)
+		
+			if (Config.verbose and photo.description): 
+				w = textwrap.TextWrapper(width=70,break_long_words=False,replace_whitespace=False,initial_indent='      ',subsequent_indent='      ')
+				print w.fill(photo.description)
+				#print "      %s" % (photo.description)
 	
 	# Verify that chidrenOrder contains all the photos
 	# we just added.  If it doesn't, that means the
@@ -197,5 +166,3 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 	
 	# save album
 	AlbumStore.saveAlbum(album)
-		
-	return album

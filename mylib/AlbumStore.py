@@ -11,6 +11,8 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+logger.addHandler(ch)
 
 # import my own local code
 from Config import Config

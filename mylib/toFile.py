@@ -10,7 +10,7 @@ from Config import Config
 
 #
 # Write specified string representing an Album to a file on disk.
-# The string may be in XML or JSON or another format, 
+# The string may be in JSON or XML or another format, 
 # it's not the job of this method to know.
 #
 def toFile(albumPath, albumString, overwriteFiles=True):
