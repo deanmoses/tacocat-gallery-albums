@@ -56,7 +56,11 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 
 	# if not found, create Album
 	if not album:
+		import pdb
+		
 		print '    %s: no album found, creating.' % pathComponent
+		
+		pdb.set_trace()
 		album = Album()
 
 	if update:
@@ -116,8 +120,8 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 			if (Config.verbose): print "    Caption: %s" % album.description
 			
 			album.childrenOrder = processAlbumHtml.scrapePhotoOrder(albumHtmlFile, html, parsedHtml)
-			if len(album.childrenOrder) < 3:
-				sys.exit('    Got less than %s thumbs for album %s: %s' % (3, albumHtmlFile, album.childrenOrder))
+			if len(album.childrenOrder) < 2:
+				sys.exit('    Got less than %s thumbs for album %s: %s' % (2, albumHtmlFile, album.childrenOrder))
 			print "    children order: %s" % album.childrenOrder
 	
 	#
@@ -184,7 +188,13 @@ def processAlbum(albumDir, creationTimestamp, update=True):
 			
 	if len(album.childrenOrder) != len(album.children):
 		raise Exception('Album %s: childOrder length (%s) is not same same as children length (%s).\nchildOrder: %s\nchildren: %s' % (album.pathComponent, len(album.childrenOrder), len(album.children), album.childOrder, album.children))
-		
+	
+	# randomly choose a photo to be the album thumbnail
+	if not album.getAlbumThumbnailPhoto():
+		randomPhotoName = album.children.iterkeys().next()
+		album.setAlbumThumbnailPhoto(randomPhotoName)
+		print '    %s: no thumbnail set, setting to %s' % (album.pathComponent, randomPhotoName)
+	
 	# save album
 	AlbumStore.saveAlbum(album)
 		

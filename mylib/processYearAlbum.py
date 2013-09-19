@@ -58,13 +58,8 @@ def processYearAlbum(year, subalbums, update=True):
 	# subalbums
 	for subalbum in subalbums:
 		# clone the child album
-		smallChild = copy.copy(subalbum)
-	
-		# remove information not needed for thumbnails
-		del(smallChild.description)
-		del(smallChild.children)
-		del(smallChild.childrenOrder)
-	
+		smallChild = subalbum.toThumbnail()
+
 		# randomly choose a photo from subalbum to use as its thumbnail in the year album
 		# will choose a different one manually later
 		randomPhoto = subalbum.children.itervalues().next()

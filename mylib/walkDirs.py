@@ -14,7 +14,7 @@ from Config import Config
 # Walk the year directory tree and process them in chronological order
 # (early years first)
 #
-def walkDirs(albumFilter, update=False):
+def walkDirs(albumFilter, update=True):
 	'''
 	Walk the directory specified by baseDir and process the albums
 	
