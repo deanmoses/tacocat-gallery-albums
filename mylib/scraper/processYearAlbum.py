@@ -7,6 +7,7 @@ import datetime
 # import my own local code
 from album.YearAlbum import YearAlbum
 from store.AlbumStore import AlbumStore
+from Config import Config
 
 #
 # Process a Year album, updating or creating an Album object
@@ -57,3 +58,16 @@ def processYearAlbum(year):
 	#	AlbumStore.saveAlbum(album)
 	#else:
 	#	print '    %s: album already exists, not re-saving' % year
+	
+	#
+	# Update the sidebar HTML blob
+	#
+	sidebarFile = '%s%s.inc' % (Config.sidebarDir, year)
+	with open(sidebarFile) as f:
+		sidebarHtml = f.read()
+		print '   firsts: %s' % (sidebarHtml)
+		album.sidebar = sidebarHtml
+		AlbumStore.saveAlbum(album)
+		
+
+	sys.exit()

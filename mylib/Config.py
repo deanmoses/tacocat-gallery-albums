@@ -14,6 +14,9 @@ class Config:
 
 	# root of this script
 	scriptDir = '/home/deanmoses/scrape/'
+	
+	# directory where the sidebar/firsts HTML live
+	sidebarDir = '/home/deanmoses/includes/pix/firsts/'
 
 	# dir to write output to
 	outDir = webRoot + 'oldpix/'  

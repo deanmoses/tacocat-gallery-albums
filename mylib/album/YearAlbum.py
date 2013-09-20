@@ -13,6 +13,7 @@ class YearAlbum(object):
 		self.pathComponent = None # "2001
 		self.title = None # "2001"
 		self.children = {} # my child albums in a dict {'2001/12-31' : Album object}
+		self.sidebar = None
 		
 		for key in initial_dict:
 			setattr(self, key, initial_dict[key])
