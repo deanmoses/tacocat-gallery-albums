@@ -54,7 +54,13 @@ class YearAlbum(object):
 	#
 	def setChildAlbumThumbnail(self, albumThumbnail):
 		self.children[albumThumbnail.pathComponent] = albumThumbnail
-		
+	
+	#
+	# Remove the specified child album as one of my thumbnails
+	#
+	def delChildAlbumThumbnail(self, childPath):
+		self.children.pop(childPath, None)
+
 	#
 	# Python's built-in toString() method
 	#

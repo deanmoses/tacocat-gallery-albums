@@ -42,3 +42,18 @@ def processYearAlbum(year):
 		if not album.creationTimestamp: raise Exception('no year %s album.creationTimestamp' % year)
 		print '    %s: album already exists, not re-saving' % year
 
+	#
+	# Remove old style album paths of '12/31' -- they are duplicates
+	#
+	removedOldFormatAlbums = 0
+	for childAlbumPath in album.children.keys():
+		if not '-' in childAlbumPath:
+			removedOldFormatAlbums += 1
+			album.delChildAlbumThumbnail(childAlbumPath)
+			print '    %s: removing duplicate thumb %s' % (year, childAlbumPath)
+			
+	#if removedOldFormatAlbums:
+	#	print 'removed %s old albums' % removedOldFormatAlbums
+	#	AlbumStore.saveAlbum(album)
+	#else:
+	#	print '    %s: album already exists, not re-saving' % year

@@ -117,11 +117,10 @@ def processAlbum(albumDir, creationTimestamp):
 			if len(album.childrenOrder) < 2:
 				sys.exit('    Got less than %s thumbs for album %s: %s' % (2, albumHtmlFile, album.childrenOrder))
 			print "    children order: %s" % album.childrenOrder
-	
+		
 	#
 	# Process photos
 	#
-	
 	htmlFiles = []
 	htmlFiles.extend(glob.glob(htmlDir + '*.htm'))
 	htmlFiles.extend(glob.glob(htmlDir + '*.html'))
