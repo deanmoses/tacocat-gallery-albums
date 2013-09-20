@@ -5,8 +5,8 @@ import time
 import datetime
 
 # import my own local code
-from YearAlbum import YearAlbum
-from AlbumStore import AlbumStore
+from album.YearAlbum import YearAlbum
+from store.AlbumStore import AlbumStore
 
 #
 # Process a Year album, updating or creating an Album object

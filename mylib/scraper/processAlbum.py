@@ -12,9 +12,9 @@ import codecs
 import processAlbumHtml
 import processPhoto
 import parseUtils
-import albumPathUtils
-from AlbumStore import AlbumStore
-from Album import Album
+import album.albumPathUtils as albumPathUtils
+from store.AlbumStore import AlbumStore
+from album.Album import Album
 from Config import Config
 
 #

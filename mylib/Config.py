@@ -1,5 +1,5 @@
 #
-# Configuration of the script - exposes paths and such
+# Configuration of both the scrape script and the album store - exposes paths and such
 #
 class Config:
 	

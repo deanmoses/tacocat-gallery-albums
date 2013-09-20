@@ -16,10 +16,10 @@ logger.addHandler(ch)
 
 # import my own local code
 from Config import Config
-from Album import Album
-from Photo import Photo
-from YearAlbum import YearAlbum
-import albumPathUtils
+from album.Album import Album
+from album.Photo import Photo
+from album.YearAlbum import YearAlbum
+import album.albumPathUtils as albumPathUtils
 import toFile
 import toJson 
 

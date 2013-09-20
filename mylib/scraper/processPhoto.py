@@ -5,8 +5,8 @@ import re
 
 # import my own local code
 from Config import Config
-from Photo import Photo
-from Image import Image
+from album.Photo import Photo
+from album.Image import Image
 import processPhotoHtml
 
 #

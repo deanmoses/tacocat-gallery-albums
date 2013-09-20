@@ -6,11 +6,11 @@
 import json
 
 # import my own code
-from Album import Album
-from Photo import Photo
-from Image import Image
-from AlbumThumbnail import AlbumThumbnail
-from YearAlbum import YearAlbum
+from album.Album import Album
+from album.Photo import Photo
+from album.Image import Image
+from album.AlbumThumbnail import AlbumThumbnail
+from album.YearAlbum import YearAlbum
 
 # handles encoding an Album and its child Photo objects as JSON
 class AlbumEncoder(json.JSONEncoder):
