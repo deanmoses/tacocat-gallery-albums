@@ -3,6 +3,8 @@ import sys
 
 # my libs
 from AlbumThumbnail import AlbumThumbnail
+from NotFoundException import NotFoundException
+from ValidationException import ValidationException
 
 #
 # an album of photos
@@ -24,7 +26,30 @@ class Album(object):
 		
 		for key in initial_dict:
 			setattr(self, key, initial_dict[key])
+	
+	#
+	# Raises ValidationException if I have missing or invalid fields
+	#
+	def validate(self):
+		# ensure required fields aren't blank
+		for fieldName in ['creationTimestamp', 'pathComponent', 'title']:
+			if (not hasattr(self, fieldName)) or (not getattr(self, fieldName)):
+				raise ValidationException(self.pathComponent, fieldName, "missing")
+		
+		if not int(self.creationTimestamp):
+			raise ValidationException(self.pathComponent, 'creationTimestamp', "not an integer")
+		
+		# Verify that children and chidrenOrder are in sync
+		childrenNames = self.children.keys()
+		for childOrderName in self.childrenOrder:
+			if childOrderName not in childrenNames:
+				raise ValidationException(self.pathComponent, 'children', 'Children contains photo %s, which is not in childOrder' % (childOrderName))
 
+		if len(self.childrenOrder) != len(self.children):
+			raise ValidationException(self.pathComponent, 'children', 'childOrder length (%s) is not same same as children length (%s)' % (len(self.childrenOrder), len(self.children)))
+		
+		# todo: validate photos
+	
 	#
 	# I'm not a year album
 	#
@@ -47,7 +72,13 @@ class Album(object):
 	# Return child Photo object
 	#	
 	def getPhoto(self, childPathComponent):
-		return self.children[childPathComponent]
+		# strip the .jpg, if any
+		childPathComponentWithoutExtension = childPathComponent.rsplit('.', 1)[0]
+		
+		try:
+			return self.children[childPathComponentWithoutExtension]
+		except KeyError:
+			raise NotFoundException('Not found: %s/%s' % (self.pathComponent, childPathComponent))
 		
 	#
 	# Set the name of the child photo to be used as the album thumbnail

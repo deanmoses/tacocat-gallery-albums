@@ -29,7 +29,7 @@ def parsePath(albumPath):
 	Exception if album is NOT a valid album path
 	'''
 	pathParts = albumPath.split('/')
-	if len(pathParts) > 3: raise Exception('too many segments in %s' % albumPath)
+	if len(pathParts) > 4: raise Exception('too many segments in %s' % albumPath)
 	
 	#
 	# validate year
@@ -68,7 +68,13 @@ def parsePath(albumPath):
 		return year, week, subalbum
 	else:
 		return year, week
-		
+
+#
+#
+#
+def validatePath(path):
+	parsePath(path)
+	
 #
 # Returns tuple of path components
 #
@@ -160,7 +166,6 @@ def albumPathFromDiskPath(albumDiskPath):
 	albumPathTuple = parseDiskPath(albumDiskPath)
 	return '/'.join(albumPathTuple)
 	
-
 #
 # Transforms:
 # 2005/12-31 into 2005
