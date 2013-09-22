@@ -160,18 +160,56 @@ class AlbumStore(object):
 		assert isinstance(parentAlbum, YearAlbum), '%s: error checking if I need to update parent, it is not of type YearAlbum: %s' % (album.pathComponent, type(parentAlbum))
 		
 		# compare thumbnail previously saved in parent album
+		needsUpdating = True
 		thumbCurrent = album.toThumbnail()
-		thumbOnParent = parentAlbum.getChildAlbumThumbnail(album.pathComponent)
-		needsUpdating = (thumbOnParent != thumbCurrent)
+		try:
+			thumbOnParent = parentAlbum.getChildAlbumThumbnail(album.pathComponent)
+			needsUpdating = (thumbOnParent != thumbCurrent)
+		except KeyError: # thumb's not there
+			pass
 		
 		# update the parent
 		if needsUpdating:
-			print '''    Derived album thumbnail values differ.\nparent:  %s\ncurrent: %s\ndiffs:%s''' % (thumbOnParent, thumbCurrent, thumbCurrent.diff(thumbOnParent))
+			#print '''    Derived album thumbnail values differ.\nparent:  %s\ncurrent: %s\ndiffs:%s''' % (thumbOnParent, thumbCurrent, thumbCurrent.diff(thumbOnParent))
 			parentAlbum.setChildAlbumThumbnail(thumbCurrent)
 			AlbumStore.updateAlbum(parentAlbum)
 		else:
 			print '    Derived album thumbnail values are the same, not updating.'
+	
+	@staticmethod
+	def __saveAlbum(album, create=False):
+		# raises exception if album has missing or invalid fields
+		album.validate()
+
+		# convert object into JSON string
+		albumString = jsonUtils.toJson(album)
 		
+		# get full path to album's JSON file on disk
+		albumFilePath = AlbumStore.__getAlbumFilePath(album.pathComponent)
+		
+		if Config.doWriteToDisk:
+			# write to disk
+			if create:
+				fileUtils.createFile(albumFilePath, albumString)
+			else:
+				fileUtils.updateFile(albumFilePath, albumString)
+				
+			print '    Wrote to %s' % albumFilePath
+		else:
+			if Config.verbose:
+				print albumString
+			print '    Would have written to %s' % albumFilePath
+		
+		# check if we need to update derived fields on parent album
+		AlbumStore.__updateParent(album)		
+		
+	#
+	# Create new album with the specified path and write to the databse
+	#
+	@staticmethod
+	def createAlbum(album):
+		AlbumStore.__saveAlbum(album, create=True)
+			
 	#
 	# Update existing album in persistent store
 	#
@@ -190,39 +228,20 @@ class AlbumStore(object):
 		-----------
 		Raises an exception if the update fails for any reason.
 		'''
-		# raises exception if album has missing or invalid fields
-		album.validate()
-
-		# convert object into JSON string
-		albumString = jsonUtils.toJson(album)
-		
-		# get full path to album's JSON file on disk
-		albumFilePath = AlbumStore.__getAlbumFilePath(album.pathComponent)
-		
-		if Config.doWriteToDisk:
-			# write to disk
-			fileUtils.updateFile(albumFilePath, albumString)
-			print '    Wrote to %s' % albumFilePath
-		else:
-			if Config.verbose:
-				print albumString
-			print '    Would have written to %s' % albumFilePath
-		
-		# check if we need to update derived fields on parent album
-		AlbumStore.__updateParent(album)
-
+		AlbumStore.__saveAlbum(album)
 
 	#
 	# Instantiates but does not save an album
 	#
 	@staticmethod
-	def newAlbum(albumPath, title, caption=None):
+	def newAlbum(albumPath, title, description=None):
 		# raise exception if path is invalid
 		albumPathUtils.validatePath(albumPath)
 		
 		album = Album()
 		album.pathComponent = albumPath
 		album.title = title
+		album.description = description
 		
 		# album's created date is determined from the folder path, like "2001/12-31"
 		pathParts = albumPath.split('/')
@@ -232,26 +251,6 @@ class AlbumStore(object):
 		
 		return album
 	
-	#
-	# Create new album with the specified path and write to the databse
-	#
-	@staticmethod
-	def createAlbum(album):
-		# get full path to album's JSON file on disk
-		albumFilePath = AlbumStore.__getAlbumFilePath(album.pathComponent)
-		
-		if Config.doWriteToDisk:
-			# write to disk
-			fileUtils.createFile(albumFilePath, albumString)
-			print '    Wrote to %s' % albumFilePath
-		else:
-			if Config.verbose:
-				print albumString
-			print '    Would have written to %s' % albumFilePath
-		
-		# check if we need to update derived fields on parent album
-		AlbumStore.__updateParent(album)
-		
 	#
 	# Update the specified photo 
 	#

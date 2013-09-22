@@ -19,6 +19,19 @@ class YearAlbum(object):
 			setattr(self, key, initial_dict[key])
 	
 	#
+	# Raises ValidationException if I have missing or invalid fields
+	#
+	def validate(self):
+		# ensure required fields aren't blank
+		for fieldName in ['creationTimestamp', 'pathComponent', 'title']:
+			if (not hasattr(self, fieldName)) or (not getattr(self, fieldName)):
+				raise ValidationException(self.pathComponent, fieldName, "missing")
+		
+		if not int(self.creationTimestamp):
+			raise ValidationException(self.pathComponent, 'creationTimestamp', "not an integer")
+		
+		
+	#
 	# I'm a year album
 	#
 	def isYearAlbum(self):
