@@ -56,8 +56,7 @@ def updateFile(albumPath, albumString):
 	assert os.path.isfile(albumPath), "File does not exist: %s" % albumPath
 	
 	# write the file
-	# r+ = open existing file for read or write, so I probably don't have to check existence above
-	with open(albumPath, "r+") as f:
+	with open(albumPath, "w+") as f:
 	    f.write(albumString)
 	
 	
@@ -67,3 +66,16 @@ def updateFile(albumPath, albumString):
 def readFile(albumPath):
 	with open(albumPath) as f: return f.read()
 	
+#
+# Delete existing file on disk.
+# Error if it doesn't exist
+#
+def deleteFile(albumPath):
+	os.remove(albumPath)
+	print 'deleted album from disk: %s' % albumPath
+	
+	# remove directory if it is empty
+	parentDir = os.path.dirname(albumPath)
+	if not os.listdir(parentDir):
+		print 'removing empty dir: %s' % parentDir
+		os.rmdir(parentDir)

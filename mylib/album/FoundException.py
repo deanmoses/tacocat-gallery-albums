@@ -1,11 +1,11 @@
 from AlbumException import AlbumException
 
 '''
-Raised when an Album or Photo isn't found
+Raised when an Album or Photo is found and shouldn't be
 '''
-class NotFoundException(AlbumException):
+class FoundException(AlbumException):
 	def __init__(self, path):
-		fullMessage = 'Not found: %s' % (path)
+		fullMessage = 'Found: %s' % (path)
 		
 		# Call the base class constructor with the parameters it needs
 		AlbumException.__init__(self, fullMessage)

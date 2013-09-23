@@ -73,13 +73,25 @@ class Album(object):
 	#	
 	def getPhoto(self, childPathComponent):
 		# strip the .jpg, if any
-		childPathComponentWithoutExtension = childPathComponent.rsplit('.', 1)[0]
-		
+		photoName = childPathComponent.rsplit('.', 1)[0]
 		try:
-			return self.children[childPathComponentWithoutExtension]
+			return self.children[photoName]
 		except KeyError:
-			raise NotFoundException('Not found: %s/%s' % (self.pathComponent, childPathComponent))
+			raise NotFoundException('Photo not found: %s/%s' % (self.pathComponent, photoName))
 		
+		
+	#
+	# Update an existing Photo in the album
+	#
+	def updatePhoto(self, photo):
+		# strip the .jpg, if any
+		photoName = photo.pathComponent.rsplit('.', 1)[0]
+		try:
+			oldPhoto = self.children[photoName]
+			self.children[photoName] = photo
+		except KeyError:
+			raise NotFoundException('Photo not found: %s/%s' % (self.pathComponent, photoName))
+	
 	#
 	# Set the name of the child photo to be used as the album thumbnail
 	#

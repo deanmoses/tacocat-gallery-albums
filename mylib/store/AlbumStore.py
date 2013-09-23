@@ -10,7 +10,6 @@ import time
 import datetime
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 logger.addHandler(ch)
 
@@ -19,6 +18,8 @@ from Config import Config
 from album.Album import Album
 from album.Photo import Photo
 from album.YearAlbum import YearAlbum
+from album.AlbumException import AlbumException
+from album.FoundException import FoundException
 from album.NotFoundException import NotFoundException
 import album.albumPathUtils as albumPathUtils
 import fileUtils
@@ -89,6 +90,8 @@ class AlbumStore(object):
 		# if album doesn't exist on disk, return None
 		if not os.path.exists(albumFilePath):
 			raise NotFoundException('Album %s not found' % albumFilePath)
+			
+		logger.debug('getAlbum(): reading from disk: %s' % albumFilePath)
 		
 		# get string of JSON from disk
 		jsonString = fileUtils.readFile(albumFilePath)
@@ -96,7 +99,8 @@ class AlbumStore(object):
 		# turn into Album object
 		album = jsonUtils.fromJson(jsonString)
 		
-		assert album, '%s: error retrieving album from store, it is null' % albumPath
+		if not album:
+			raise AlbumException('%s: error retrieving album from store, it is null' % albumPath)
 		
 		# put album in cache
 		AlbumStore.__store[albumPath] = album
@@ -128,7 +132,7 @@ class AlbumStore(object):
 		Raises an Exception if the retrieve fails for any reason.
 		'''
 		# get path to album that the photo lives in
-		albumPathUtils.validatePath(photoPath)
+		albumPathUtils.validatePhotoPath(photoPath)
 		pathParts = photoPath.split('/')
 		photoName = pathParts.pop()
 		parentAlbumPath = '/'.join(pathParts)
@@ -145,63 +149,83 @@ class AlbumStore(object):
 	@staticmethod
 	def getParentAlbum(albumPath):
 		parentPath = albumPathUtils.parentPathFromChildPath(albumPath)
+		logger.debug('getParentAlbum(%s): parent path is: %s' % (albumPath, parentPath))
 		return AlbumStore.getAlbum(parentPath)
 	
 	#
 	# Check if we need to update derived fields on parent album.
 	#
 	@staticmethod
-	def __updateParent(album):
+	def __updateParent(album, create=False):
+		'''
+		Parameters
+		----------
+		create: boolean
+			True: the child album is new, a thumb should not already exist.
+			False: the child album already exists, its thumb should already exist.
+		'''
 		# only need to do update the parent of day albums, not year or sub albums
 		if not album.isDayAlbum(): return
 		
 		# retrieve parent album -- will be a year album
 		parentAlbum = AlbumStore.getParentAlbum(album.pathComponent)
-		assert isinstance(parentAlbum, YearAlbum), '%s: error checking if I need to update parent, it is not of type YearAlbum: %s' % (album.pathComponent, type(parentAlbum))
+		if not isinstance(parentAlbum, YearAlbum):
+			# this could happen if our flaky JSON parsing gets out of whack again
+			raise AlbumException('%s: error checking if I need to update parent, it is not of type YearAlbum: %s.  Got %s' % (album.pathComponent, type(parentAlbum), parentAlbum.pathComponent))
 		
-		# compare thumbnail previously saved in parent album
-		needsUpdating = True
+		# what we're saving to parent
 		thumbCurrent = album.toThumbnail()
-		try:
-			thumbOnParent = parentAlbum.getChildAlbumThumbnail(album.pathComponent)
-			needsUpdating = (thumbOnParent != thumbCurrent)
-		except KeyError: # thumb's not there
-			pass
 		
+		# compare to previously saved thumbnail to
+		# see if the values have actually changed
+		needsUpdating = create or (thumbCurrent != parentAlbum.getChildAlbumThumbnail(album.pathComponent))
+
 		# update the parent
 		if needsUpdating:
-			#print '''    Derived album thumbnail values differ.\nparent:  %s\ncurrent: %s\ndiffs:%s''' % (thumbOnParent, thumbCurrent, thumbCurrent.diff(thumbOnParent))
 			parentAlbum.setChildAlbumThumbnail(thumbCurrent)
 			AlbumStore.updateAlbum(parentAlbum)
+			logger.debug('%s: updated thumbnail for child: %s', parentAlbum.pathComponent, album.pathComponent)
 		else:
-			print '    Derived album thumbnail values are the same, not updating.'
+			logger.debug('%s: derived album thumbnail values are the same, not updating.', parentAlbum.pathComponent)
 	
 	@staticmethod
 	def __saveAlbum(album, create=False):
+		'''
+		Parameters
+		----------
+		create: boolean
+			True: save new album. Fails if album already exists.
+			False: update existing album. Fails if album doesn't already exist.
+		'''
 		# raises exception if album has missing or invalid fields
 		album.validate()
-
-		# convert object into JSON string
+		
+		# convert album object into JSON string
 		albumString = jsonUtils.toJson(album)
 		
 		# get full path to album's JSON file on disk
 		albumFilePath = AlbumStore.__getAlbumFilePath(album.pathComponent)
 		
-		if Config.doWriteToDisk:
-			# write to disk
-			if create:
+		# write to disk
+		if create:
+			try:
 				fileUtils.createFile(albumFilePath, albumString)
-			else:
-				fileUtils.updateFile(albumFilePath, albumString)
-				
-			print '    Wrote to %s' % albumFilePath
+			except AssertionError:
+				raise FoundException(album.pathComponent)
 		else:
-			if Config.verbose:
-				print albumString
-			print '    Would have written to %s' % albumFilePath
+			try:
+				fileUtils.updateFile(albumFilePath, albumString)
+			except AssertionError:
+				raise NotFoundException(album.pathComponent)
+			
+		logger.debug('Wrote to %s', albumFilePath)
+			
+		# put / update album in cache
+		AlbumStore.__store[album.pathComponent] = album
 		
-		# check if we need to update derived fields on parent album
-		AlbumStore.__updateParent(album)		
+		# create or update my thumbnail on parent album, if needed
+		AlbumStore.__updateParent(album, create)
+		
 		
 	#
 	# Create new album with the specified path and write to the databse
@@ -273,11 +297,15 @@ class AlbumStore(object):
 		-----------
 		Raises an exception if the update fails for any reason.
 		'''
+		logger.debug('updatePhoto(%s) albumPath: %s' % (photo.pathComponent, albumPath))
+		
 		# retrieve photo's album from persistent store
 		album = AlbumStore.getAlbum(albumPath)
 		
-		# set the updated photo object on it
-		album.setPhoto(photo)
+		logger.debug('updatePhoto(%s) got album: %s' % (photo.pathComponent, album.pathComponent))
+		
+		# update existing photo in the album
+		album.updatePhoto(photo)
 		
 		AlbumStore.updateAlbum(album)
 		
@@ -286,7 +314,7 @@ class AlbumStore(object):
 	# Update the specified photo with the specified attributes
 	# 
 	@staticmethod
-	def updatePhoto(photoPath, attributes):
+	def updatePhotoFromDict(photoPath, attributes):
 		'''
 		Updates a photo already in the persistent store.
 
@@ -309,6 +337,8 @@ class AlbumStore(object):
 		'''
 		# retrieve photo from persistent store
 		photo = AlbumStore.getPhoto(photoPath)
+		
+		logger.debug('updatePhoto(%s)' % photoPath)
 
 		# update the photo's fields
 		changed = False
@@ -318,12 +348,47 @@ class AlbumStore(object):
 				setattr(photo, key, newvalue)
 				changed = True	
 
+		if not changed:
+			logger.debug('updatePhotoFromDict(%s): nothing changed, not resaving' % photoPath)
+			
+		# validate the changed photo
+		photo.validate()
+		
 		# get path to album that the photo lives in
 		albumPathUtils.validatePath(photoPath)
 		pathParts = photoPath.split('/')
 		photoName = pathParts.pop()
 		parentAlbumPath = '/'.join(pathParts)
+		
+		logger.debug('updatePhoto(%s): parent path: %s' % (photoPath, parentAlbumPath))
 				
 		# persist updated photo
 		AlbumStore.updatePhoto(parentAlbumPath, photo)
+	
+		
+	#
+	# Delete album at the specified path
+	#
+	@staticmethod
+	def deleteAlbum(albumPath):
+		# raise exception if path is invalid
+		albumPathUtils.validatePath(albumPath)
+		
+		# get full path to album's JSON file on disk
+		albumFilePath = AlbumStore.__getAlbumFilePath(albumPath)
+		
+		# if album doesn't exist on disk, return None
+		if not os.path.exists(albumFilePath):
+			raise NotFoundException('Album not found: %s' % albumFilePath)
+		
+		# delete album from disk
+		fileUtils.deleteFile(albumFilePath)
+		
+		# remove album from cache
+		AlbumStore.__store.pop(albumPath, None)
+		
+		# remove deleted album's thumbnail info from parent album
+		parentAlbum = AlbumStore.getParentAlbum(albumPath)
+		parentAlbum.delChildAlbumThumbnail(albumPath)
+		AlbumStore.updateAlbum(parentAlbum)
 		

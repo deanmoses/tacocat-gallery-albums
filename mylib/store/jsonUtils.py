@@ -12,6 +12,11 @@ from album.Image import Image
 from album.AlbumThumbnail import AlbumThumbnail
 from album.YearAlbum import YearAlbum
 
+import logging
+logger = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+logger.addHandler(ch)
+
 # handles encoding an Album and its child Photo objects as JSON
 class AlbumEncoder(json.JSONEncoder):
 	def default(self, o):
@@ -70,5 +75,5 @@ def fromJson(jsonString):
 	----------
 	Album object
 	'''
-	
+
 	return json.loads(jsonString, object_hook=albumDecoder)

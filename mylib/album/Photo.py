@@ -1,3 +1,5 @@
+from ValidationException import ValidationException
+
 #
 # a photo in an album
 #
@@ -26,3 +28,16 @@ class Photo(object):
 	#
 	def __eq__(self, other): 
 		return self.__dict__ == other.__dict__
+		
+	#
+	# Error if any of my fields are missing or invalid
+	#
+	def validate(self):
+		# ensure required fields aren't missing or blank
+		for fieldName in ['pathComponent', 'title', 'fullSizeImage']:
+			if (not hasattr(self, fieldName)) or (not getattr(self, fieldName)):
+				raise ValidationException(self.pathComponent, fieldName, "missing or blank")
+		
+		self.fullSizeImage.validate()
+			
+		

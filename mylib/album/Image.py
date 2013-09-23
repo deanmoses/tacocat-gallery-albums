@@ -36,3 +36,21 @@ class Image(object):
 				(self.url, self.height, self.width),
 				(other.url, other.height, other.width)
 			)
+			
+	#
+	# Error if any of my fields are missing or invalid
+	#
+	def validate(self):
+		# ensure required fields aren't blank
+		for fieldName in ['url']:
+			if (not hasattr(self, fieldName)) or (not getattr(self, fieldName)):
+				raise ValidationException('image without url', fieldName, "missing")
+				
+		# if height and width are set, they should be at least the minSize
+		minSize = 100
+		if self.height and not int(self.height) >= minSize:
+			raise ValidationException(self.pathComponent, 'height', "must be an int greater than %s" % minSize)
+			
+		if self.width and not int(self.width) >= minSize:
+			raise ValidationException(self.pathComponent, 'width', "must be an int greater than %s" % minSize)
+		

@@ -1,4 +1,7 @@
 from AlbumThumbnail import AlbumThumbnail
+from NotFoundException import NotFoundException
+from ThumbnailNotFoundException import ThumbnailNotFoundException
+from AlbumException import AlbumException
 
 #
 # An album representing a year's worth of albums
@@ -47,7 +50,13 @@ class YearAlbum(object):
 	#
 	def isSubAlbum(self):
 		return False
-		
+	
+	#
+	# Year albums don't contain photos
+	#
+	def getPhoto(photoName):
+		raise NotFoundException('Year albums do not contain photos')
+	
 	#
 	# Clone myself with a smaller set of fields, just
 	# the stuff needed for the root album to create a thumbnail
@@ -59,9 +68,13 @@ class YearAlbum(object):
 	# Return AlbumThumbnail of one of my child albums
 	#	
 	def getChildAlbumThumbnail(self, childPath):
-		thumb = self.children[childPath]
-		assert isinstance(thumb, AlbumThumbnail), '%s: thumb is not instance of AlbumThumbnail, is instead: %s' % (self.pathComponent, type(thumb))
-		return thumb
+		try:
+			thumb = self.children[childPath]
+			if not isinstance(thumb, AlbumThumbnail):
+				raise AlbumException('%s: thumb is not instance of AlbumThumbnail, is instead: %s' % (self.pathComponent, type(thumb)))
+			return thumb
+		except KeyError:
+			raise ThumbnailNotFoundException(self.pathComponent, childPath)
 	
 	#
 	# Set the AlbumThumbnail of one of my child albums
