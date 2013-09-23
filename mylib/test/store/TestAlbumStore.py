@@ -54,22 +54,33 @@ class TestAlbumStore(unittest.TestCase):
 	#
 	#
 	def test_updatePhotoFromDict(self):
-		goodUpdates = { 
-			'2001/12-13/harriet': {
-				'title': 'aaaa',
-				'description': 'bbbb'
-			},
-			'2001/12-13/harriet': {
-				'description': 'cccc'
-			},
-			'2001/12-13/harriet': {
-				'title': 'dddd'
-			}
-			}
-		for path, attrs in goodUpdates.iteritems():
-			logger.debug('test updating good photo %s' % path)
-			AlbumStore.updatePhotoFromDict(path, attrs)
+		path = '2001/12-13/harriet'
+		photo = AlbumStore.getPhoto(path)
+		originalTitle = photo.title
+		originalDescription = photo.description
 		
+		AlbumStore.updatePhotoFromDict(path, {'title': 'title1','description': 'description1'})
+		photo = AlbumStore.getPhoto(path)
+		self.assertTrue(photo.title == 'title1')
+		self.assertTrue(photo.description == 'description1')
+		
+		AlbumStore.updatePhotoFromDict(path, {'description': 'description2'})
+		photo = AlbumStore.getPhoto(path)
+		self.assertTrue(photo.title == 'title1')
+		self.assertTrue(photo.description == 'description2')
+		
+		AlbumStore.updatePhotoFromDict(path, {'title': 'title3'})
+		photo = AlbumStore.getPhoto(path)
+		self.assertTrue(photo.title == 'title3')
+		self.assertTrue(photo.description == 'description2')
+		
+		# should return the photo back to original state
+		AlbumStore.updatePhotoFromDict(path, {'title': originalTitle,'description': originalDescription})
+		photo = AlbumStore.getPhoto(path)
+		self.assertTrue(photo.title == originalTitle)
+		self.assertTrue(photo.description == originalDescription)
+		
+		# try a bunch of bad photo updates
 		badUpdates = {
 			'/2001/12-13/harrietcccc/': {
 				'title': 'eeee',
