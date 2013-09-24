@@ -52,7 +52,11 @@ class AlbumStore(object):
 		----------
 		Full path to album JSON file on disk
 		'''
-		return '%s%s/album.json' % (Config.outDir, albumPath)
+		# null or blank albumPath = root
+		if not albumPath:
+			return '%salbum.json' % (Config.outDir)
+		else:
+			return '%s%s/album.json' % (Config.outDir, albumPath)
 	
 	#
 	# Retrieve album from persistent store

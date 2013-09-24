@@ -30,7 +30,8 @@ def albumDecoder (dict):
 		return Image(dict)
 	elif 'creationTimestamp' in dict and not 'children' in dict and not 'description' in dict:
 		return AlbumThumbnail(dict)
-	elif 'pathComponent' in dict and '/' not in dict['pathComponent']:
+	# a None pathComponent means it's the root album
+	elif 'pathComponent' in dict and ((dict['pathComponent'] == None) or ('/' not in dict['pathComponent'])):
 		return YearAlbum(dict)
 	elif 'creationTimestamp' in dict and 'children' in dict:
 		return Album(dict)

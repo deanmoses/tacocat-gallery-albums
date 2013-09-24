@@ -14,6 +14,75 @@ class TestAlbumStore(unittest.TestCase):
 	#
 	#
 	#
+	def test_getAlbum(self):
+		# test getting root album
+		rootAlbumPaths = [None, '', '/']
+		for path in rootAlbumPaths:
+			logger.debug('testing getAlbum() with root path: [%s]', path)
+			album = AlbumStore.getAlbum(path)
+			if not album:
+				self.fail('Empty album: %s' % path)
+			if (not hasattr(album, 'title')) or len(album.title) <= 0:
+				self.fail('Empty album title: %s' % path)
+			if (not hasattr(album, 'pathComponent')):
+				self.fail('No album pathComponent: %s' % path)
+		
+		# test successful album retrieval
+		goodAlbumPaths = [
+			'2001',
+			'/2001',
+			'2002',
+			'/2002',
+			'2001/',
+			'2002/',
+			'2001/12-13/',
+			'/2001/12-31/',
+			'2001/12-31//',
+			'2004/12-12/first_meal'
+		]
+		
+		for path in goodAlbumPaths:
+			logger.debug('testing getAlbum() with good path: [%s]', path)
+			album = AlbumStore.getAlbum(path)
+			if not album:
+				self.fail('Empty album: %s' % path)
+			if (not hasattr(album, 'title')) or len(album.title) <= 0:
+				self.fail('Empty album title: %s' % path)
+			if (not hasattr(album, 'pathComponent')):
+				self.fail('No album pathComponent: %s' % path)
+			self.assertEquals(path.strip('/'), album.pathComponent)
+			self.assertTrue(len(album.pathComponent) >= 4)
+			
+		# test fail album retrieval
+		badAlbumPaths = [
+			'a',
+			'asl;dfjk',
+			'200000',
+			'2000.00',
+			'2001/12',
+			'2001/12/',
+			'2001/12/31'
+			'2001/12/31/',
+			'2001/123-31/',
+			'2001/12-312/',
+			'2001/aa-31/',
+			'2001/aa-bb/'
+		]
+		
+		for path in badAlbumPaths:
+			try:
+				logger.debug('testing getAlbum(%s) (bad path)', path)
+				AlbumStore.getAlbum(path)
+				self.fail('getAlbum(%s) should not have succeeded' % path)
+			except AssertionError, inst:
+				raise inst
+			except AlbumException, inst:
+				logger.debug('getAlbum(%s) failed as expected: %s' % (path, str(inst)))
+		
+		
+	#
+	#
+	#
 	def test_getPhoto(self):		
 		goodPhotoPaths = [
 			'2001/12-13/harriet',
@@ -30,7 +99,7 @@ class TestAlbumStore(unittest.TestCase):
 		]
 		
 		for path in goodPhotoPaths:
-			logger.debug('testing getPhoto() with good path: %s', path)
+			logger.debug('testing getAlbu() with good path: %s', path)
 			photo = AlbumStore.getPhoto(path)
 			if not photo:
 				self.fail('Empty photo: %s' % path)
@@ -43,11 +112,11 @@ class TestAlbumStore(unittest.TestCase):
 			try:
 				logger.debug('testing getPhoto() with bad path: %s', path)
 				AlbumStore.getPhoto(path)
-				self.fail('Should not have succeeded: %s' % path)
+				self.fail('getPhoto(%s) should not have succeeded' % path)
 			except AssertionError, inst:
 				raise inst
 			except AlbumException, inst:
-				logger.debug('bad photo retrieve for photo [%s] failed as expected.  Failure: %s' % (path, str(inst)))
+				logger.debug('getPhoto(%s) failed as expected: %s' % (path, str(inst)))
 	
 	
 	#
