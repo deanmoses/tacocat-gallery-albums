@@ -35,7 +35,7 @@ def parsePath(albumPath):
 	----------
 	PathValidationException if album is NOT a valid album path
 	'''
-	logger.debug('Parsing album or photo path: %s' % albumPath)
+	logger.debug('Parsing album or photo path: [%s]' % albumPath)
 	
 	if not albumPath: raise PathValidationException(albumPath, 'cannot be empty')
 	
@@ -50,8 +50,11 @@ def parsePath(albumPath):
 	try:
 		int(year)
 	except ValueError:
-		raise PathValidationException(albumPath, 'invalid month')
+		raise PathValidationException(albumPath, 'invalid year')
 	
+	if len(pathParts) == 0:
+		return [year]
+		
 	#
 	# validate month-day
 	#
@@ -68,7 +71,7 @@ def parsePath(albumPath):
 	try:
 		int(month)
 	except ValueError:
-		raise PathValidationException(albumPath, 'invalid valid')
+		raise PathValidationException(albumPath, 'invalid month')
 	
 	# validate day
 	day = weekParts.pop(0)
@@ -78,19 +81,16 @@ def parsePath(albumPath):
 	except ValueError:
 		raise PathValidationException(albumPath, 'invalid day')
 	
-	# start building list to return
-	parsedPathParts = [year, week]
+	if len(pathParts) == 0:
+		return [year, week]
 	
-	# do we have a photo or sub album?
-	if (len(pathParts) > 0):
-		parsedPathParts.append(pathParts.pop(0))
-		
-		# do we have sub album?
-		if (len(pathParts) > 0):
-			parsedPathParts.append(pathParts.pop(0))
-	
-	return parsedPathParts
+	photoOrSubAlbum = pathParts.pop(0)
+	if len(pathParts) == 0:
+		return [year, week, photoOrSubAlbum]
 
+	subAlbum = pathParts.pop(0)
+	return [year, week, photoOrSubAlbum, subAlbum]
+	
 #
 # Error if it isn't a valid album or photo path
 #

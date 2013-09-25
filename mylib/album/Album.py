@@ -1,32 +1,47 @@
-# 3rd party libs
-import sys
-
-# my libs
 from AlbumThumbnail import AlbumThumbnail
+from AlbumException import AlbumException
 from NotFoundException import NotFoundException
+from ThumbnailNotFoundException import ThumbnailNotFoundException
 from ValidationException import ValidationException
 
 #
-# an album of photos
+# An album contains photos and subalbums
 #
 class Album(object):
-	
 	#
-	# Initialize from a dict, most likely from a JSON object
+	# Convert from children to photos and childAlbumThumbs
+	#
+	def convertChildren(self):
+		if hasattr(self, 'children'):
+			if len(self.pathComponent) <= 4:
+				self.childAlbumThumbnails = self.children
+			else:
+				self.photos = self.children
+				self.photoOrder = self.childrenOrder
+				del self.childrenOrder
+			
+			del self.children
+			
+	#
+	# Initialize
 	#
 	def __init__(self, initial_dict={}):
 		self.creationTimestamp = None # Unix timestamp of year/month/day
 		self.pathComponent = None # "2001/12/31/someSubalbum"
-		self.title = None # "November 8"
+		self.title = None # "2001" or "November 8"
 		self.summary = None # "First day of school"
 		self.description = None # caption of album, probably contains HTML
-		self.childrenOrder = [] # order of my child photos like ['supper', 'bedtime']
-		self.children = {} # my child photos Photo objects in a dict {'supper' : Photo object}
-		self.thumbnailChild = None # name of child photo for the album thumbnail, like 'supper'
+		self.photoOrder = [] # order of my child photos like ['supper', 'bedtime']
+		self.photos = {} # my child photos Photo objects in a dict {'supper' : Photo object}
+		self.childAlbumThumbnails = {} # thumbnail info of my child albums
+   		self.thumbnailUrl = None # full http:// url to the photo to use as my thumbnail
+		self.sidebar = None # the HTML of the sidebar containing firsts (only on Year albums)
 		
-		for key in initial_dict:
-			setattr(self, key, initial_dict[key])
-	
+		for key, value in initial_dict.iteritems():
+			setattr(self, key, value)
+			
+		self.convertChildren()
+
 	#
 	# Raises ValidationException if I have missing or invalid fields
 	#
@@ -39,22 +54,30 @@ class Album(object):
 		if not int(self.creationTimestamp):
 			raise ValidationException(self.pathComponent, 'creationTimestamp', "not an integer")
 		
-		# Verify that children and chidrenOrder are in sync
-		childrenNames = self.children.keys()
-		for childOrderName in self.childrenOrder:
-			if childOrderName not in childrenNames:
-				raise ValidationException(self.pathComponent, 'children', 'Children contains photo %s, which is not in childOrder' % (childOrderName))
+		# Verify that photos and photoOrder are in sync
+		photoNames = self.photos.keys()
+		for photoOrderName in self.photoOrder:
+			if photoOrderName not in photoNames:
+				raise ValidationException(self.pathComponent, 'photos', 'PhotoOrder contains photo %s, which is not in photos' % (photoOrderName))
 
-		if len(self.childrenOrder) != len(self.children):
-			raise ValidationException(self.pathComponent, 'children', 'childOrder length (%s) is not same same as children length (%s)' % (len(self.childrenOrder), len(self.children)))
+		if len(self.photoOrder) != len(self.photos):
+			raise ValidationException(self.pathComponent, 'photos', 'photos length (%s) is not same same as photo order length (%s)' % (len(self.photos), len(self.photoOrder)))
 		
-		# todo: validate photos
+		# if I don't have a thumbnail, choose one now randomly
+		if not self.thumbnailUrl and len(self.photos) > 0:
+			self.thumbnailUrl = self.photos.itervalues().next().fullSizeImage.url
 	
 	#
-	# I'm not a year album
+	# True if I'm the root album
+	#
+	def isRootAlbum(self):
+		return not self.pathComponent
+		
+	#
+	# True if I'm a year album
 	#
 	def isYearAlbum(self):
-		return False
+		return len(self.pathComponent) == 4
 	
 	#
 	# True I'm a day album (not a year album, and not a subalbum under a day album)
@@ -71,14 +94,13 @@ class Album(object):
 	#
 	# Return child Photo object
 	#	
-	def getPhoto(self, childPathComponent):
+	def getPhoto(self, photoPathComponent):
 		# strip the .jpg, if any
-		photoName = childPathComponent.rsplit('.', 1)[0]
+		photoName = photoPathComponent.rsplit('.', 1)[0]
 		try:
-			return self.children[photoName]
+			return self.photos[photoName]
 		except KeyError:
 			raise NotFoundException('Photo not found: %s/%s' % (self.pathComponent, photoName))
-		
 		
 	#
 	# Update an existing Photo in the album
@@ -87,28 +109,37 @@ class Album(object):
 		# strip the .jpg, if any
 		photoName = photo.pathComponent.rsplit('.', 1)[0]
 		try:
-			oldPhoto = self.children[photoName]
-			self.children[photoName] = photo
+			oldPhoto = self.photos[photoName]
+			self.photos[photoName] = photo
 		except KeyError:
 			raise NotFoundException('Photo not found: %s/%s' % (self.pathComponent, photoName))
+
+	#
+	# Return AlbumThumbnail of the specified child album
+	#
+	def getChildAlbumThumbnail(self, childAlbumPath):
+		try:
+			thumb = self.childAlbumThumbnails[childAlbumPath]
+			if not isinstance(thumb, AlbumThumbnail):
+				raise AlbumException('%s: thumb is not instance of AlbumThumbnail, is instead: %s' % (self.pathComponent, type(thumb)))
+			return thumb
+		except KeyError:
+			raise ThumbnailNotFoundException(self.pathComponent, childAlbumPath)
+
+	#
+	# Set the AlbumThumbnail of one of my child albums.
+	# This should be called when adding or updating a child album.
+	#
+	def setChildAlbumThumbnail(self, albumThumbnail):
+		self.childAlbumThumbnails[albumThumbnail.pathComponent] = albumThumbnail
+
+	#
+	# Remove the specified child album as one of my thumbnails
+	# This should be called when deleting a child album.
+	#
+	def delChildAlbumThumbnail(self, childPathComponent):
+		self.childAlbumThumbnails.pop(childPathComponent, None)
 	
-	#
-	# Set the name of the child photo to be used as the album thumbnail
-	#
-	def setAlbumThumbnailPhoto(self, childName):
-		assert childName in self.children, 'Thumbnail %s is not in children %s' % (childName, self.children)
-		self.thumbnailChild = childName
-	
-	#
-	# Return child Photo object that is the album thumbnail
-	# or None if not yet set
-	#
-	def getAlbumThumbnailPhoto(self):
-		if self.thumbnailChild: 
-			return self.children[self.thumbnailChild]
-		else: 
-			return None
-		
 	#
 	# Make a copy of myself with a smaller set of fields, just
 	# the stuff needed for my parent album to create a thumbnail

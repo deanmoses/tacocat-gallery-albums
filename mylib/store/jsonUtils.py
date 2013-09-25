@@ -10,7 +10,6 @@ from album.Album import Album
 from album.Photo import Photo
 from album.Image import Image
 from album.AlbumThumbnail import AlbumThumbnail
-from album.YearAlbum import YearAlbum
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,17 +23,14 @@ class AlbumEncoder(json.JSONEncoder):
 
 # handles decoding JSON into objects
 def albumDecoder (dict):
+	if 'children' in dict or 'photos' in dict or 'childAlbumThumbs' in dict:
+		return Album(dict)
 	if 'fullSizeImage' in dict and not 'creationTimestamp' in dict:
 		return Photo(dict)
 	elif 'height' in dict:
 		return Image(dict)
 	elif 'creationTimestamp' in dict and not 'children' in dict and not 'description' in dict:
 		return AlbumThumbnail(dict)
-	# a None pathComponent means it's the root album
-	elif 'pathComponent' in dict and ((dict['pathComponent'] == None) or ('/' not in dict['pathComponent'])):
-		return YearAlbum(dict)
-	elif 'creationTimestamp' in dict and 'children' in dict:
-		return Album(dict)
 	else:
 		return dict
 

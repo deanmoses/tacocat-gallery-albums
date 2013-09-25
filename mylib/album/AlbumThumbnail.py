@@ -31,11 +31,7 @@ class AlbumThumbnail(object):
 			self.pathComponent = album.pathComponent
 			self.title = album.title
 			self.summary = album.summary
-			thumbPhoto = album.getAlbumThumbnailPhoto()
-			if thumbPhoto:
-				self.fullSizeImage.url = thumbPhoto.fullSizeImage.url
-			else:
-				print 'AlbumThumbnail cannot find thumbPhoto!'
+			self.thumbnailUrl = album.thumbnailUrl
 		
 		for key in initial_dict:
 			setattr(self, key, initial_dict[key])

@@ -17,7 +17,6 @@ logger.addHandler(ch)
 from Config import Config
 from album.Album import Album
 from album.Photo import Photo
-from album.YearAlbum import YearAlbum
 from album.AlbumException import AlbumException
 from album.FoundException import FoundException
 from album.NotFoundException import NotFoundException
@@ -168,14 +167,11 @@ class AlbumStore(object):
 			True: the child album is new, a thumb should not already exist.
 			False: the child album already exists, its thumb should already exist.
 		'''
-		# only need to do update the parent of day albums, not year or sub albums
-		if not album.isDayAlbum(): return
+		# don't need to update the nonexistent parent of the root album
+		if album.isRootAlbum(): return
 		
-		# retrieve parent album -- will be a year album
+		# retrieve parent album
 		parentAlbum = AlbumStore.getParentAlbum(album.pathComponent)
-		if not isinstance(parentAlbum, YearAlbum):
-			# this could happen if our flaky JSON parsing gets out of whack again
-			raise AlbumException('%s: error checking if I need to update parent, it is not of type YearAlbum: %s.  Got %s' % (album.pathComponent, type(parentAlbum), parentAlbum.pathComponent))
 		
 		# what we're saving to parent
 		thumbCurrent = album.toThumbnail()
@@ -259,16 +255,40 @@ class AlbumStore(object):
 		AlbumStore.__saveAlbum(album)
 
 	#
+	# Instantiates but does not save a year album
+	#
+	@staticmethod
+	def __newYearAlbum(year):
+		yearInt = int(year)
+		assert  yearInt > 1800 and yearInt < 2200
+		
+		album = YearAlbum()
+		album.title = year
+		album.pathComponent = year
+		
+		# set timestamp to Jan 1 of the year
+		album.creationTimestamp = int(time.mktime(datetime.datetime(year=yearInt, month=1, day=1).timetuple()))
+		
+		return album
+		
+	
+	#
 	# Instantiates but does not save an album
 	#
 	@staticmethod
-	def newAlbum(albumPath, title, description=None):
+	def newAlbum(albumPath, title=None, description=None):
 		# raise exception if path is invalid
-		albumPathUtils.validatePath(albumPath)
+		pathParts = albumPathUtils.parsePath(albumPath)
 		
+		# if the path is just a year, create new year album
+		if (len(pathParts) == 1):
+			if title or description:
+				raise AlbumException('Cannot create year album with title or description')
+			return AlbumStore.__newYearAlbum(pathParts[0])
+		
+		# else create new day album
 		album = Album()
 		album.pathComponent = albumPath
-		album.title = title
 		album.description = description
 		
 		# album's created date is determined from the folder path, like "2001/12-31"
@@ -276,6 +296,12 @@ class AlbumStore(object):
 		monthDayParts = pathParts[1].split('-')
 		yyyyMMdd = "%s/%s/%s" % (pathParts[0], monthDayParts[0], monthDayParts[1])
 		album.creationTimestamp = int(time.mktime(datetime.datetime.strptime(yyyyMMdd, "%Y/%m/%d").timetuple()))
+		
+		if title:
+			album.title = title
+		else:
+			# long format day, like "December 1".  No year.
+			album.title = datetime.datetime.fromtimestamp(album.creationTimestamp).strftime('%B %-d')
 		
 		return album
 	

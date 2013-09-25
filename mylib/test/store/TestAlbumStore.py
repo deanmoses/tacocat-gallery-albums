@@ -23,7 +23,7 @@ class TestAlbumStore(unittest.TestCase):
 			if not album:
 				self.fail('Empty album: %s' % path)
 			if (not hasattr(album, 'title')) or len(album.title) <= 0:
-				self.fail('Empty album title: %s' % path)
+				self.fail('Empty album [%s] title' % path)
 			if (not hasattr(album, 'pathComponent')):
 				self.fail('No album pathComponent: %s' % path)
 		
@@ -193,64 +193,39 @@ class TestAlbumStore(unittest.TestCase):
 			except AlbumException, inst:
 				logger.debug('bad photo update for photo [%s] failed as expected.  Failure: %s' % (path, str(inst)))
 
+
 	#
-	# Test album create (and delete)
+	# Assert that album exists and can be updated
 	#
-	def test_createAlbum(self):
-		# create a fake test album, not yet saved to disk
-		album = AlbumStore.newAlbum('2001/12-01', 'December 12', 'caption #1')
-				
-		# retrieving a nonexistent album should fail
-		try:
-			AlbumStore.getAlbum(album.pathComponent)
-			self.fail("This album should not exist")
-		except AssertionError, inst:
-			raise inst
-		except AlbumException, inst:
-			logger.debug('Got exception as expected on getAlbum: %s' % str(inst))
-		
-		# updating a nonexistent album should fail
-		try:
-			AlbumStore.updateAlbum(album)
-			self.fail("This album should not exist")
-		except AssertionError, inst:
-			raise inst
-		except AlbumException, inst:
-			logger.debug('Got exception as expected on updateAlbum: %s' % str(inst))
-			
-		# deleting a nonexistent album should fail
-		try:
-			AlbumStore.deleteAlbum(album.pathComponent)
-			self.fail("This album should not exist")
-		except AssertionError, inst:
-			raise inst
-		except AlbumException, inst:
-			logger.debug('Got exception as expected on deleteAlbum: %s' % str(inst))
-			
-		
-		# create album should succeed
-		AlbumStore.createAlbum(album)
-		
+	def assertAlbumExists(self, album):
 		# parent album should now have this album's thumbnail info
 		parentAlbum = AlbumStore.getParentAlbum(album.pathComponent)
 		thumb = parentAlbum.getChildAlbumThumbnail(album.pathComponent)
 		self.assertTrue(thumb.pathComponent == album.pathComponent)
-		
+	
 		# retrieve should now succeed
 		savedAlbum = AlbumStore.getAlbum(album.pathComponent)
 		self.assertTrue(savedAlbum.pathComponent == album.pathComponent)
-		
+	
 		# update should now succeed
+		originalDescription = album.description
 		album.description = "caption #2"
 		AlbumStore.updateAlbum(album)
-		
+	
 		# test that album was actually updated
 		album = AlbumStore.getAlbum(album.pathComponent)
 		self.assertEquals("caption #2", album.description)
 		
-		# delete should now succeed
-		AlbumStore.deleteAlbum(album.pathComponent)
+		# put album back to original state
+		album.description = originalDescription
+		AlbumStore.updateAlbum(album)
+		album = AlbumStore.getAlbum(album.pathComponent)
+		self.assertEquals(originalDescription, album.description)
 		
+	#
+	# Assert album does not exist
+	#
+	def assertAlbumDoesNotExist(self, album):
 		# parent album should no longer have this album's thumbnail info
 		parentAlbum = AlbumStore.getParentAlbum(album.pathComponent)
 		try:
@@ -260,7 +235,7 @@ class TestAlbumStore(unittest.TestCase):
 			raise inst
 		except AlbumException, inst:
 			logger.debug('Got exception as expected retrieving thumbnail of deleted album: %s' % str(inst))
-		
+
 		# retrieve should now fail
 		try:
 			AlbumStore.getAlbum(album.pathComponent)
@@ -269,7 +244,7 @@ class TestAlbumStore(unittest.TestCase):
 			raise inst
 		except AlbumException, inst:
 			logger.debug('Got exception as expected on getAlbum: %s' % str(inst))
-			
+
 		# update should now fail
 		try:
 			AlbumStore.updateAlbum(album)
@@ -278,7 +253,7 @@ class TestAlbumStore(unittest.TestCase):
 			raise inst
 		except AlbumException, inst:
 			logger.debug('Got exception as expected on updateAlbum: %s' % str(inst))
-			
+
 		# delete should now fail
 		try:
 			AlbumStore.deleteAlbum(album.pathComponent)
@@ -287,7 +262,40 @@ class TestAlbumStore(unittest.TestCase):
 			raise inst
 		except AlbumException, inst:
 			logger.debug('Got exception as expected on deleteAlbum: %s' % str(inst))
+
+				
+	#
+	# Test album create (and delete)
+	#
+	def test_createAlbum(self):
+		# create a fake test album
+		album = AlbumStore.newAlbum('2001/12-01', description='caption #1')
+		self.assertAlbumDoesNotExist(album)
+		AlbumStore.createAlbum(album)
+		self.assertAlbumExists(album)
+		AlbumStore.deleteAlbum(album.pathComponent)
+		self.assertAlbumDoesNotExist(album)
 		
+		# create a fake year album
+		yearAlbum = AlbumStore.newAlbum('1977')
+		self.assertAlbumDoesNotExist(yearAlbum)
+		AlbumStore.createAlbum(yearAlbum)
+		self.assertAlbumExists(yearAlbum)
+		
+		# create a fake day album under fake year
+		dayAlbum = AlbumStore.newAlbum('1977/01-01', description='caption A')
+		self.assertAlbumDoesNotExist(dayAlbum)
+		AlbumStore.createAlbum(dayAlbum)
+		self.assertAlbumExists(dayAlbum)
+		
+		# delete fake day album
+		AlbumStore.deleteAlbum(dayAlbum.pathComponent)
+		self.assertAlbumDoesNotExist(dayAlbum)
+		
+		# delete fake year album
+		AlbumStore.deleteAlbum(yearAlbum.pathComponent)
+		self.assertAlbumDoesNotExist(yearAlbum)
+
 		
 	
 if __name__ == '__main__':
